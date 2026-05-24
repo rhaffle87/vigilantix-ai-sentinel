@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
 
 export type PipelineStage =
   | "idle"
@@ -467,6 +468,7 @@ function mapTaskFromDb(dbTask: any): SoarTask {
 }
 
 export function SimulationProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [logs, setLogs] = useState<LogEntry[]>([]);
   
   const [playbookRegistry, setPlaybookRegistry] = useState<Record<string, string>>(() => {
@@ -606,8 +608,69 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   });
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  // Fetch initial telemetry from Supabase
+  // Fetch initial telemetry from Supabase or load fallback in-memory mock data
   useEffect(() => {
+    if (!user) {
+      const mockInitialLogs: LogEntry[] = [
+        { id: "log-1", ts: Date.now() - 60000, source: "network", srcIp: "192.168.1.105", dstIp: "10.0.0.15", message: "TCP SYN ack", severity: "info", anomaly: 12 },
+        { id: "log-2", ts: Date.now() - 120000, source: "endpoint", srcIp: "10.0.4.12", dstIp: "10.0.0.1", message: "EDR heartbeat", severity: "info", anomaly: 5 },
+        { id: "log-3", ts: Date.now() - 180000, source: "server", srcIp: "10.0.2.55", dstIp: "10.0.2.1", message: "Nginx 200 /api/health", severity: "info", anomaly: 8 },
+        { id: "log-4", ts: Date.now() - 240000, source: "firewall", srcIp: "88.23.45.112", dstIp: "10.0.0.12", message: "Rule match: allow 443", severity: "info", anomaly: 15 },
+        { id: "log-5", ts: Date.now() - 300000, source: "auth", srcIp: "10.0.5.99", dstIp: "10.0.0.2", message: "Session start", severity: "info", anomaly: 22 },
+        { id: "log-6", ts: Date.now() - 360000, source: "network", srcIp: "10.0.4.88", dstIp: "192.168.1.200", message: "DNS query resolved", severity: "info", anomaly: 10 },
+        { id: "log-7", ts: Date.now() - 420000, source: "endpoint", srcIp: "10.0.4.12", dstIp: "10.0.0.1", message: "Process exec: chrome.exe", severity: "info", anomaly: 18 },
+        { id: "log-8", ts: Date.now() - 480000, source: "server", srcIp: "10.0.2.56", dstIp: "10.0.2.1", message: "DB query 12ms", severity: "info", anomaly: 11 },
+        { id: "log-9", ts: Date.now() - 540000, source: "firewall", srcIp: "142.250.74.46", dstIp: "10.0.0.12", message: "Rate limit ok", severity: "info", anomaly: 7 },
+        { id: "log-10", ts: Date.now() - 600000, source: "auth", srcIp: "10.0.5.99", dstIp: "10.0.0.2", message: "MFA verify ok", severity: "info", anomaly: 14 },
+      ];
+      setLogs(mockInitialLogs);
+
+      const initialIncidents: Incident[] = [
+        {
+          id: "INC-9281",
+          ts: Date.now() - 4 * 3600000,
+          title: "Brute force on auth gateway",
+          srcIp: "185.220.101.45",
+          anomaly: 92,
+          status: "resolved",
+          playbook: "PB-Auth-Lockdown",
+          vtVerdict: "malicious",
+        },
+        {
+          id: "INC-9275",
+          ts: Date.now() - 26 * 3600000,
+          title: "Suspicious PowerShell on WIN-EP-22",
+          srcIp: "10.0.4.21",
+          anomaly: 88,
+          status: "resolved",
+          playbook: "PB-EDR-Isolate",
+          vtVerdict: "suspicious",
+        },
+      ];
+      setIncidents(initialIncidents);
+      
+      const today = new Date().toDateString();
+      const todayAlerts = initialIncidents.filter(
+        (i) => new Date(i.ts).toDateString() === today
+      ).length;
+      setMetrics((m) => ({ ...m, alertsToday: todayAlerts }));
+
+      const totalPoints = 24;
+      const nowTs = Date.now();
+      const initialSeries = Array.from({ length: totalPoints }, (_, idx) => {
+        const hoursAgo = totalPoints - 1 - idx;
+        const shiftedTime = new Date(nowTs - hoursAgo * 3600000);
+        return {
+          t: shiftedTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          events: 1000 + Math.floor(Math.random() * 400),
+          anomalies: 5 + Math.floor(Math.random() * 25),
+          blocked: Math.floor(Math.random() * 8),
+        };
+      });
+      setSeries(initialSeries);
+      return;
+    }
+
     async function loadData() {
       try {
         // Logs
@@ -809,7 +872,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       supabase.removeChannel(incidentsChannel);
       supabase.removeChannel(tasksChannel);
     };
-  }, []);
+  }, [user]);
 
   // Events/sec ticker loop
   useEffect(() => {
@@ -861,8 +924,41 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         dstIp = CORPORATE_NET.apiGateway;
       }
 
-      const anomaly = template.minAnomaly + Math.random() * (template.maxAnomaly - template.minAnomaly);
+      const anomaly = Math.round((template.minAnomaly + Math.random() * (template.maxAnomaly - template.minAnomaly)) * 10) / 10;
 
+      if (!user) {
+        // Unauthenticated local-only simulation fallback
+        const localLog: LogEntry = {
+          id: `log-${Math.random().toString(36).substr(2, 9)}`,
+          ts: Date.now(),
+          source: template.source as any,
+          srcIp,
+          dstIp,
+          message: template.message,
+          severity: template.severity as any,
+          anomaly,
+        };
+        setLogs((prev) => [localLog, ...prev].slice(0, 200));
+
+        // Increment event count on the latest chart point dynamically
+        setSeries((prev) => {
+          if (prev.length === 0) return prev;
+          const next = [...prev];
+          const lastIdx = next.length - 1;
+          next[lastIdx] = {
+            ...next[lastIdx],
+            events: next[lastIdx].events + 1,
+          };
+          return next;
+        });
+
+        if (anomaly > 75) {
+          addNotification("attack", `WAF Alert: High-risk anomaly (${anomaly}%) detected from ${srcIp}`);
+        }
+        return;
+      }
+
+      // Authenticated database insert
       try {
         await supabase.from("logs").insert({
           source: template.source,
@@ -870,7 +966,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
           dst_ip: dstIp,
           message: template.message,
           severity: template.severity,
-          anomaly: Math.round(anomaly * 10) / 10,
+          anomaly,
         });
       } catch (err) {
         console.error("Failed to insert background log entry:", err);
@@ -878,7 +974,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     }, 4500);
 
     return () => clearInterval(intervalId);
-  }, [isAttacking]);
+  }, [isAttacking, user]);
 
   // Latencies ticker loop & degradation trigger
   useEffect(() => {
@@ -1060,6 +1156,140 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       vt_verdict: variant.vtVerdict,
     };
 
+    if (!user) {
+      // Local-only simulation fallback when unauthenticated
+      const localLog: LogEntry = {
+        id: incomingLog.hash || `log-${Math.random().toString(36).substr(2, 9)}`,
+        ts: Date.now(),
+        source: incomingLog.source as any,
+        srcIp: incomingLog.src_ip,
+        dstIp: incomingLog.dst_ip,
+        message: incomingLog.message,
+        severity: incomingLog.severity as any,
+        anomaly: incomingLog.anomaly,
+        hash: incomingLog.hash,
+      };
+      setLogs((prev) => [localLog, ...prev].slice(0, 200));
+
+      const localIncident: Incident = {
+        id: incident.id,
+        ts: Date.now(),
+        title: incident.title,
+        srcIp: incident.src_ip,
+        anomaly: incident.anomaly,
+        status: incident.status as any,
+        playbook: incident.playbook,
+        vtVerdict: incident.vt_verdict as any,
+        payloadHash: variant.payloadHash,
+      };
+      setIncidents((prev) => [localIncident, ...prev]);
+
+      // Trigger pipeline stages locally
+      const isCatastrophic = variant.id === "catastrophic_wipe";
+      const steps: { stage: PipelineStage; delay: number }[] = isCatastrophic
+        ? [
+            { stage: "collection", delay: 0 },
+            { stage: "processing", delay: 800 },
+            { stage: "analysis", delay: 1700 },
+            { stage: "alert", delay: 2700 },
+            { stage: "response", delay: 3500 },
+          ]
+        : [
+            { stage: "collection", delay: 0 },
+            { stage: "processing", delay: 800 },
+            { stage: "analysis", delay: 1700 },
+            { stage: "alert", delay: 2700 },
+            { stage: "response", delay: 3500 },
+            { stage: "logging", delay: 6500 },
+            { stage: "complete", delay: 7500 },
+          ];
+
+      setActive(localIncident);
+
+      if (isCatastrophic) {
+        setMetrics((m) => ({
+          ...m,
+          alertsToday: m.alertsToday + 45,
+          blockedIps: m.blockedIps + 480,
+          meanResponseSec: 999,
+        }));
+      }
+
+      timers.current.forEach(clearTimeout);
+      timers.current = [];
+
+      steps.forEach(({ stage: s, delay }) => {
+        const t = setTimeout(() => {
+          setStage(s);
+          if (s === "analysis") {
+            setSeries((prev) => {
+              if (prev.length === 0) return prev;
+              const next = [...prev];
+              const lastIdx = next.length - 1;
+              next[lastIdx] = {
+                ...next[lastIdx],
+                anomalies: Math.round(next[lastIdx].anomalies + variant.anomaly * (isCatastrophic ? 4.5 : 0.4)),
+                events: Math.round(next[lastIdx].events + (isCatastrophic ? 1200 : 0)),
+                blocked: Math.round(next[lastIdx].blocked + (isCatastrophic ? 250 : 0)),
+              };
+              return next;
+            });
+          }
+        }, delay);
+        timers.current.push(t);
+      });
+
+      // Update tasks sequentially in local state
+      compiledTasks.forEach((task, i) => {
+        if (isCatastrophic && i > 0) return; // Stall subsequent tasks indefinitely
+        const t = setTimeout(() => {
+          setSoarTasks((prev) =>
+            prev.map((tk) => (tk.key === task.key ? { ...tk, done: true } : tk))
+          );
+          addNotification("playbook", `SOAR Action Completed: ${task.label}`);
+        }, 3800 + i * 500);
+        timers.current.push(t);
+      });
+
+      if (!isCatastrophic) {
+        // Complete incident resolution at end locally
+        const finish = setTimeout(() => {
+          setIncidents((prev) =>
+            prev.map((inc) => (inc.id === incidentId ? { ...inc, status: "resolved" } : inc))
+          );
+
+          setMetrics((m) => ({
+            ...m,
+            alertsToday: m.alertsToday + 1,
+            blockedIps: m.blockedIps + 1,
+            meanResponseSec: Math.round((m.meanResponseSec + 7) / 2),
+          }));
+
+          setSeries((prev) => {
+            if (prev.length === 0) return prev;
+            const next = [...prev];
+            const lastIdx = next.length - 1;
+            next[lastIdx] = {
+              ...next[lastIdx],
+              blocked: next[lastIdx].blocked + 1,
+            };
+            return next;
+          });
+
+          addNotification("remediation", `Mitigation Complete: Incident ${incidentId} has been fully mitigated. WAF rules locked.`);
+
+          setStage("idle");
+          setActive(null);
+          setAttacking(false);
+        }, 9000);
+        timers.current.push(finish);
+      } else {
+        // Send a system warning alert
+        addNotification("attack", `SOAR CRITICAL ALARM: Automatic playbook execution stalled on incident ${incidentId}. Manual override mandatory!`);
+      }
+      return;
+    }
+
     try {
       // 1. Insert incident and log to database
       await supabase.from("incidents").insert(incident);
@@ -1191,6 +1421,22 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   const manualOverrideRecovery = async () => {
     if (!activeIncident || activeIncident.playbook !== "PB-Emergency-System-Override") return;
     
+    if (!user) {
+      // Local fallback manual recovery
+      setSoarTasks((prev) => prev.map((t) => ({ ...t, done: true })));
+      setIncidents((prev) =>
+        prev.map((i) => (i.id === activeIncident.id ? { ...i, status: "resolved" } : i))
+      );
+      setStage("complete");
+      setTimeout(() => {
+        setStage("idle");
+        setActive(null);
+        setAttacking(false);
+        addNotification("remediation", "MANUAL recovery override successful. All system layers restored to nominal health.");
+      }, 2000);
+      return;
+    }
+
     // Resolve all SOAR tasks in database
     await supabase
       .from("soar_tasks")
