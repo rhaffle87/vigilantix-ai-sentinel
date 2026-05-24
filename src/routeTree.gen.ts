@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LogsRouteImport } from './routes/logs'
+import { Route as AiDetectionRouteImport } from './routes/ai-detection'
 import { Route as IndexRouteImport } from './routes/index'
 
 const LogsRoute = LogsRouteImport.update({
   id: '/logs',
   path: '/logs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiDetectionRoute = AiDetectionRouteImport.update({
+  id: '/ai-detection',
+  path: '/ai-detection',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -25,27 +31,31 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-detection': typeof AiDetectionRoute
   '/logs': typeof LogsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-detection': typeof AiDetectionRoute
   '/logs': typeof LogsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-detection': typeof AiDetectionRoute
   '/logs': typeof LogsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/logs'
+  fullPaths: '/' | '/ai-detection' | '/logs'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/logs'
-  id: '__root__' | '/' | '/logs'
+  to: '/' | '/ai-detection' | '/logs'
+  id: '__root__' | '/' | '/ai-detection' | '/logs'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiDetectionRoute: typeof AiDetectionRoute
   LogsRoute: typeof LogsRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/logs'
       fullPath: '/logs'
       preLoaderRoute: typeof LogsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-detection': {
+      id: '/ai-detection'
+      path: '/ai-detection'
+      fullPath: '/ai-detection'
+      preLoaderRoute: typeof AiDetectionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiDetectionRoute: AiDetectionRoute,
   LogsRoute: LogsRoute,
 }
 export const routeTree = rootRouteImport
