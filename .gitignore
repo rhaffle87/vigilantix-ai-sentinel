@@ -7,7 +7,10 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+
+# Build & Outputs
 dist
 dist-ssr
 .output
@@ -16,9 +19,22 @@ dist-ssr
 .nitro
 *.local
 
+# Environment variables (Sensitive secrets)
+.env
+.env.*
+!.env.example
+*.env
+.dev.vars
+
+# Testing & Reports
+test-results/
+playwright-report/
+blob-report/
+coverage/
+.vitest/
+
 # Wrangler / Cloudflare
 .wrangler/
-.dev.vars
 
 # Editor directories and files
 .vscode/*
