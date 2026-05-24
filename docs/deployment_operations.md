@@ -47,11 +47,26 @@ Open [http://localhost:5173](http://localhost:5173) in your web browser.
 
 ---
 
-## 🌐 Serverless Edge SSR & Security Middleware
+---
 
-VIGILANTIX utilizes **Cloudflare Workers** to host its SSR (Server-Side Rendered) templates. The SSR server contains custom middleware layers that inject security-hardened headers into every HTTP response.
+## 🌐 Production Serverless Deployment
 
-### SSR Edge Security Headers Configuration (`src/server.ts`)
+VIGILANTIX is engineered to be deployment-platform agnostic. It supports seamless deployment across major cloud environments, including **Vercel** and **Cloudflare Workers**.
+
+### Option A: Deploying on Vercel (Zero-Config)
+Vercel has native support for **TanStack Start** and **Vinxi** out of the box.
+
+1. **Import Repository**: Connect your GitHub repository to Vercel.
+2. **Framework Detection**: Vercel automatically detects the Vite/TanStack Start structure.
+3. **Environment Variables**: Add your production keys in Vercel's Dashboard:
+   * `VITE_SUPABASE_URL`
+   * `VITE_SUPABASE_ANON_KEY`
+4. **Deploy**: Click deploy. Vercel automatically runs `npm run build` and maps Vinxi outputs into Vercel Serverless Functions natively.
+
+### Option B: Deploying on Cloudflare Workers
+To target Cloudflare, you can include `@cloudflare/vite-plugin` in your Vite configs. The custom edge server uses a middleware layer that injects strict security headers on every response:
+
+#### SSR Edge Security Headers Configuration (`src/server.ts`)
 
 ```typescript
 const SECURITY_HEADERS = {
