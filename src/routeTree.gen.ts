@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SoarRouteImport } from './routes/soar'
 import { Route as LogsRouteImport } from './routes/logs'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as AiDetectionRouteImport } from './routes/ai-detection'
 import { Route as IndexRouteImport } from './routes/index'
@@ -23,6 +24,11 @@ const SoarRoute = SoarRouteImport.update({
 const LogsRoute = LogsRouteImport.update({
   id: '/logs',
   path: '/logs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BillingRoute = BillingRouteImport.update({
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai-detection': typeof AiDetectionRoute
   '/billing': typeof BillingRoute
+  '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
   '/soar': typeof SoarRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai-detection': typeof AiDetectionRoute
   '/billing': typeof BillingRoute
+  '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
   '/soar': typeof SoarRoute
 }
@@ -60,21 +68,30 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/ai-detection': typeof AiDetectionRoute
   '/billing': typeof BillingRoute
+  '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
   '/soar': typeof SoarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/ai-detection' | '/billing' | '/logs' | '/soar'
+  fullPaths: '/' | '/ai-detection' | '/billing' | '/login' | '/logs' | '/soar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/ai-detection' | '/billing' | '/logs' | '/soar'
-  id: '__root__' | '/' | '/ai-detection' | '/billing' | '/logs' | '/soar'
+  to: '/' | '/ai-detection' | '/billing' | '/login' | '/logs' | '/soar'
+  id:
+    | '__root__'
+    | '/'
+    | '/ai-detection'
+    | '/billing'
+    | '/login'
+    | '/logs'
+    | '/soar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiDetectionRoute: typeof AiDetectionRoute
   BillingRoute: typeof BillingRoute
+  LoginRoute: typeof LoginRoute
   LogsRoute: typeof LogsRoute
   SoarRoute: typeof SoarRoute
 }
@@ -93,6 +110,13 @@ declare module '@tanstack/react-router' {
       path: '/logs'
       fullPath: '/logs'
       preLoaderRoute: typeof LogsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/billing': {
@@ -123,9 +147,20 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiDetectionRoute: AiDetectionRoute,
   BillingRoute: BillingRoute,
+  LoginRoute: LoginRoute,
   LogsRoute: LogsRoute,
   SoarRoute: SoarRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

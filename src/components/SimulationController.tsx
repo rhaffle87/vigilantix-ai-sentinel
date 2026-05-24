@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Zap, ChevronDown, ChevronUp, Crosshair } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useSim, type PipelineStage } from "@/context/SimulationContext";
+import { useSim, type PipelineStage, ATTACK_VARIANTS } from "@/context/SimulationContext";
 
 const STAGES: { key: PipelineStage; label: string }[] = [
   { key: "collection", label: "Collect" },
@@ -25,7 +25,8 @@ const ORDER: PipelineStage[] = [
 
 export function SimulationController() {
   const [open, setOpen] = useState(true);
-  const { triggerAttack, isAttacking, stage, activeIncident } = useSim();
+  const [selectedAttack, setSelectedAttack] = useState(0);
+  const { triggerAttack, isAttacking, stage, activeIncident, manualOverrideRecovery } = useSim();
   const idx = ORDER.indexOf(stage);
 
   return (
@@ -52,12 +53,31 @@ export function SimulationController() {
       {open && (
         <div className="space-y-3 p-3">
           <p className="text-xs text-muted-foreground">
-            Inject a synthetic high-severity payload and watch the 6-stage SOC→SOAR
+            Inject a synthetic high-severity payload and watch the 6-stage SOC to SOAR
             pipeline execute end-to-end.
           </p>
 
+          <div className="space-y-1">
+            <label htmlFor="attack-select" className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Select Attack Vector
+            </label>
+            <select
+              id="attack-select"
+              value={selectedAttack}
+              onChange={(e) => setSelectedAttack(Number(e.target.value))}
+              disabled={isAttacking}
+              className="w-full rounded border border-border bg-background/50 backdrop-blur px-2.5 py-1.5 text-xs text-foreground focus:border-accent focus:outline-none disabled:opacity-50"
+            >
+              {ATTACK_VARIANTS.map((v, i) => (
+                <option key={v.id} value={i} className="bg-card">
+                  {v.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <Button
-            onClick={triggerAttack}
+            onClick={() => triggerAttack(selectedAttack)}
             disabled={isAttacking}
             className="w-full bg-gradient-alert text-destructive-foreground font-semibold uppercase tracking-wider hover:opacity-90 glow-alert"
           >
@@ -82,22 +102,20 @@ export function SimulationController() {
               return (
                 <div
                   key={s.key}
-                  className={`flex items-center gap-2 rounded px-2 py-1 text-xs transition ${
-                    active
+                  className={`flex items-center gap-2 rounded px-2 py-1 text-xs transition ${active
                       ? "bg-primary/15 text-primary"
                       : done
                         ? "text-success"
                         : "text-muted-foreground"
-                  }`}
+                    }`}
                 >
                   <span
-                    className={`flex h-4 w-4 items-center justify-center rounded-full border text-[9px] font-bold ${
-                      active
+                    className={`flex h-4 w-4 items-center justify-center rounded-full border text-[9px] font-bold ${active
                         ? "border-primary bg-primary/20 animate-flicker"
                         : done
                           ? "border-success bg-success/20"
                           : "border-border"
-                    }`}
+                      }`}
                   >
                     {done ? "✓" : i + 1}
                   </span>
@@ -109,12 +127,27 @@ export function SimulationController() {
           </div>
 
           {activeIncident && (
-            <div className="rounded border border-destructive/40 bg-destructive/10 p-2 text-xs">
-              <div className="font-mono text-destructive">{activeIncident.id}</div>
+            <div className="rounded border border-destructive/40 bg-destructive/10 p-2 text-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-destructive">{activeIncident.id}</span>
+                {activeIncident.playbook === "PB-Emergency-System-Override" && (
+                  <span className="animate-pulse font-semibold uppercase tracking-widest text-[9px] text-destructive bg-destructive/20 px-1 py-0.5 rounded">
+                    STALLED
+                  </span>
+                )}
+              </div>
               <div className="text-foreground">{activeIncident.title}</div>
               <div className="mt-1 text-muted-foreground">
                 src: <span className="font-mono text-accent">{activeIncident.srcIp}</span>
               </div>
+              {activeIncident.playbook === "PB-Emergency-System-Override" && (
+                <Button
+                  onClick={manualOverrideRecovery}
+                  className="mt-2 w-full bg-success text-success-foreground font-semibold uppercase tracking-wider text-[10px] py-1 h-7"
+                >
+                  Force Manual Override Recovery
+                </Button>
+              )}
             </div>
           )}
         </div>

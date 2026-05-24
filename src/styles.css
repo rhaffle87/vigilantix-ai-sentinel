@@ -1,5 +1,4 @@
-@import "tailwindcss" source(none);
-@source "../src";
+@import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -108,6 +107,7 @@
   --shadow-glow: 0 0 40px -10px oklch(0.62 0.24 300 / 60%);
   --shadow-cyan: 0 0 30px -10px oklch(0.78 0.17 195 / 50%);
   --shadow-alert: 0 0 30px -5px oklch(0.62 0.25 22 / 60%);
+  --text-accent-color: oklch(0.78 0.17 195);
 }
 
 .dark {
@@ -143,6 +143,7 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+  --text-accent-color: oklch(0.82 0.16 195);
 }
 
 @layer base {
@@ -172,6 +173,17 @@
   .bg-success { background-color: var(--success); }
   .border-warning { border-color: var(--warning); }
   .border-success { border-color: var(--success); }
+
+  .text-accent,
+  .hover\:text-accent:hover,
+  .focus\:text-accent:focus {
+    color: var(--text-accent-color) !important;
+  }
+  .border-accent,
+  .hover\:border-accent:hover,
+  .focus\:border-accent:focus {
+    border-color: var(--text-accent-color) !important;
+  }
 
   .grid-bg {
     background-image:
@@ -205,5 +217,17 @@
   .animate-data-flow {
     stroke-dasharray: 6 6;
     animation: data-flow 1.5s linear infinite;
+  }
+
+  @keyframes ring-bell {
+    0%, 100% { transform: rotate(0deg); }
+    20% { transform: rotate(15deg); }
+    40% { transform: rotate(-15deg); }
+    60% { transform: rotate(10deg); }
+    80% { transform: rotate(-10deg); }
+  }
+  .hover-ring:hover .ring-bell-icon {
+    animation: ring-bell 0.6s ease-in-out;
+    transform-origin: top center;
   }
 }

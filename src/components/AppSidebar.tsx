@@ -5,7 +5,6 @@ import {
   BrainCircuit,
   Workflow,
   CreditCard,
-  ShieldCheck,
   Activity,
 } from "lucide-react";
 import {
@@ -22,6 +21,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useSim } from "@/context/SimulationContext";
+import { useMounted } from "@/hooks/use-mounted";
 
 const items = [
   { title: "SOC Hub", url: "/", icon: LayoutDashboard },
@@ -31,18 +31,24 @@ const items = [
   { title: "Billing & Infra", url: "/billing", icon: CreditCard },
 ];
 
+
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const path = useRouterState({ select: (r) => r.location.pathname });
   const { metrics } = useSim();
+  const mounted = useMounted();
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 px-2 py-3">
           <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-gradient-primary glow-primary">
-            <ShieldCheck className="h-5 w-5 text-primary-foreground" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary-foreground">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(255, 255, 255, 0.15)" />
+              <path d="M12 8v4" stroke="#10b981" />
+              <circle cx="12" cy="16" r="1" fill="#10b981" stroke="none" />
+            </svg>
           </div>
           {!collapsed && (
             <div className="flex flex-col leading-tight">
@@ -90,7 +96,7 @@ export function AppSidebar() {
               <span>Live ingestion</span>
             </div>
             <div className="mt-1 text-lg font-mono font-semibold text-accent">
-              {metrics.eventsPerSec.toLocaleString()}
+              {mounted ? metrics.eventsPerSec.toLocaleString() : "..."}
               <span className="ml-1 text-[10px] text-muted-foreground">ev/s</span>
             </div>
           </div>
