@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SoarRouteImport } from './routes/soar'
 import { Route as LogsRouteImport } from './routes/logs'
+import { Route as BillingRouteImport } from './routes/billing'
 import { Route as AiDetectionRouteImport } from './routes/ai-detection'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -22,6 +23,11 @@ const SoarRoute = SoarRouteImport.update({
 const LogsRoute = LogsRouteImport.update({
   id: '/logs',
   path: '/logs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BillingRoute = BillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AiDetectionRoute = AiDetectionRouteImport.update({
@@ -38,12 +44,14 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai-detection': typeof AiDetectionRoute
+  '/billing': typeof BillingRoute
   '/logs': typeof LogsRoute
   '/soar': typeof SoarRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai-detection': typeof AiDetectionRoute
+  '/billing': typeof BillingRoute
   '/logs': typeof LogsRoute
   '/soar': typeof SoarRoute
 }
@@ -51,20 +59,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ai-detection': typeof AiDetectionRoute
+  '/billing': typeof BillingRoute
   '/logs': typeof LogsRoute
   '/soar': typeof SoarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/ai-detection' | '/logs' | '/soar'
+  fullPaths: '/' | '/ai-detection' | '/billing' | '/logs' | '/soar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/ai-detection' | '/logs' | '/soar'
-  id: '__root__' | '/' | '/ai-detection' | '/logs' | '/soar'
+  to: '/' | '/ai-detection' | '/billing' | '/logs' | '/soar'
+  id: '__root__' | '/' | '/ai-detection' | '/billing' | '/logs' | '/soar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiDetectionRoute: typeof AiDetectionRoute
+  BillingRoute: typeof BillingRoute
   LogsRoute: typeof LogsRoute
   SoarRoute: typeof SoarRoute
 }
@@ -83,6 +93,13 @@ declare module '@tanstack/react-router' {
       path: '/logs'
       fullPath: '/logs'
       preLoaderRoute: typeof LogsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/billing': {
+      id: '/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof BillingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ai-detection': {
@@ -105,6 +122,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiDetectionRoute: AiDetectionRoute,
+  BillingRoute: BillingRoute,
   LogsRoute: LogsRoute,
   SoarRoute: SoarRoute,
 }
