@@ -9,6 +9,12 @@ import {
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
+import { SimulationProvider, useSim } from "@/context/SimulationContext";
+import { SimulationController } from "@/components/SimulationController";
+import { Toaster } from "@/components/ui/sonner";
+import { ShieldAlert, Search, Bell } from "lucide-react";
 
 function NotFoundComponent() {
   return (
@@ -72,11 +78,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "VIGILANTIX AI — SOC-SOAR Platform" },
+      { name: "description", content: "AI-driven Security Operations & Automated Response platform." },
+      { name: "author", content: "VIGILANTIX AI" },
+      { property: "og:title", content: "VIGILANTIX AI — SOC-SOAR Platform" },
+      { property: "og:description", content: "Real-time threat monitoring, AI anomaly detection, and SOAR automation." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
@@ -96,7 +102,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <HeadContent />
       </head>
@@ -113,7 +119,78 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <SimulationProvider>
+        <SidebarProvider>
+          <div className="flex min-h-screen w-full bg-background text-foreground">
+            <AppSidebar />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <TopBar />
+              <main className="flex-1 overflow-x-hidden">
+                <Outlet />
+              </main>
+            </div>
+          </div>
+          <SimulationController />
+          <Toaster />
+        </SidebarProvider>
+      </SimulationProvider>
     </QueryClientProvider>
+  );
+}
+
+function TopBar() {
+  const { stage, activeIncident, metrics } = useSim();
+  const alerting = stage !== "idle" && stage !== "complete";
+  return (
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-3 backdrop-blur">
+      <SidebarTrigger />
+      <div className="hidden items-center gap-2 md:flex">
+        <div className="h-2 w-2 rounded-full bg-success animate-flicker" />
+        <span className="text-xs uppercase tracking-widest text-muted-foreground">
+          System Status: <span className="text-success">Operational</span>
+        </span>
+      </div>
+
+      <div className="relative ml-auto hidden w-72 md:block">
+        <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+        <input
+          placeholder="Search logs, IPs, hashes…"
+          className="h-8 w-full rounded-md border border-border bg-muted/40 pl-7 pr-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
+        />
+      </div>
+
+      <div className="hidden items-center gap-3 rounded-md border border-border bg-card/40 px-3 py-1.5 text-[11px] md:flex">
+        <span className="text-muted-foreground">EPS</span>
+        <span className="font-mono font-semibold text-accent">
+          {metrics.eventsPerSec.toLocaleString()}
+        </span>
+        <span className="text-muted-foreground">| Alerts</span>
+        <span className="font-mono font-semibold text-warning">{metrics.alertsToday}</span>
+      </div>
+
+      <button
+        className={`relative flex h-8 w-8 items-center justify-center rounded-md border ${
+          alerting
+            ? "border-destructive bg-destructive/15 animate-pulse-alert"
+            : "border-border bg-card/40"
+        }`}
+        aria-label="alerts"
+      >
+        {alerting ? (
+          <ShieldAlert className="h-4 w-4 text-destructive" />
+        ) : (
+          <Bell className="h-4 w-4 text-muted-foreground" />
+        )}
+        {activeIncident && (
+          <span className="absolute -right-1 -top-1 flex h-3 w-3 items-center justify-center rounded-full bg-destructive text-[8px] font-bold text-destructive-foreground">
+            !
+          </span>
+        )}
+      </button>
+
+      <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-primary text-xs font-bold text-primary-foreground">
+        SO
+      </div>
+    </header>
   );
 }
