@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SoarRouteImport } from './routes/soar'
 import { Route as LogsRouteImport } from './routes/logs'
 import { Route as AiDetectionRouteImport } from './routes/ai-detection'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SoarRoute = SoarRouteImport.update({
+  id: '/soar',
+  path: '/soar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LogsRoute = LogsRouteImport.update({
   id: '/logs',
   path: '/logs',
@@ -33,34 +39,45 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai-detection': typeof AiDetectionRoute
   '/logs': typeof LogsRoute
+  '/soar': typeof SoarRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai-detection': typeof AiDetectionRoute
   '/logs': typeof LogsRoute
+  '/soar': typeof SoarRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ai-detection': typeof AiDetectionRoute
   '/logs': typeof LogsRoute
+  '/soar': typeof SoarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/ai-detection' | '/logs'
+  fullPaths: '/' | '/ai-detection' | '/logs' | '/soar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/ai-detection' | '/logs'
-  id: '__root__' | '/' | '/ai-detection' | '/logs'
+  to: '/' | '/ai-detection' | '/logs' | '/soar'
+  id: '__root__' | '/' | '/ai-detection' | '/logs' | '/soar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiDetectionRoute: typeof AiDetectionRoute
   LogsRoute: typeof LogsRoute
+  SoarRoute: typeof SoarRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/soar': {
+      id: '/soar'
+      path: '/soar'
+      fullPath: '/soar'
+      preLoaderRoute: typeof SoarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/logs': {
       id: '/logs'
       path: '/logs'
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiDetectionRoute: AiDetectionRoute,
   LogsRoute: LogsRoute,
+  SoarRoute: SoarRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
