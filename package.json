@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test:unit": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "prepare": "husky"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.25.5",
@@ -84,6 +85,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^15.15.0",
+    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
     "nitro": "^3.0.260522-beta",
     "prettier": "^3.7.3",
