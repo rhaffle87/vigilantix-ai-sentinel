@@ -124,5 +124,42 @@ test.describe("Vigilantix AI SOC Command Center E2E", () => {
       await bellButton.click();
       await expect(page.locator("#notifications-dropdown")).not.toBeVisible();
     });
+
+    test("should navigate to account profile page, display operator info and modify preferences", async ({ page }) => {
+      // Navigate to main and click operator avatar link
+      await page.goto("/");
+      const avatarLink = page.locator('a[aria-label="Operator Profile & Preferences"]');
+      await expect(avatarLink).toBeVisible();
+      await expect(avatarLink).toHaveText("AD"); // admin@vigilantix.ai -> AD
+      
+      await avatarLink.click();
+      await expect(page.locator("h1")).toHaveText("Operator Profile & Terminal Settings");
+
+      // Verify operator roster contains Rafli
+      await expect(page.locator("text=Rafli A. I. Hartono")).toBeVisible();
+
+      // Test copying User ID is functional (or check its visibility)
+      await expect(page.locator("text=e81d77a2-f8ab-40b8-9382-b7e615e440e2")).toBeVisible();
+
+      // Verify and modify environment region preference selection
+      const regionSelect = page.locator("select").first();
+      await expect(regionSelect).toBeVisible();
+      await regionSelect.selectOption("ap_southeast");
+
+      // Click Save Config button
+      const saveBtn = page.locator("button:has-text('Save Config')");
+      await saveBtn.click();
+
+      // Wait for success toast feedback
+      await expect(page.locator("text=Preferences updated")).toBeVisible();
+
+      // Verify localStorage was updated correctly
+      const localPrefs = await page.evaluate((userId) => {
+        return localStorage.getItem(`vigilantix_prefs_${userId}`);
+      }, "e81d77a2-f8ab-40b8-9382-b7e615e440e2");
+      
+      expect(localPrefs).not.toBeNull();
+      expect(JSON.parse(localPrefs || "{}").region).toBe("ap_southeast");
+    });
   });
 });

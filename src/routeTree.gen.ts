@@ -14,6 +14,7 @@ import { Route as LogsRouteImport } from './routes/logs'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as AiDetectionRouteImport } from './routes/ai-detection'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
 
 const SoarRoute = SoarRouteImport.update({
@@ -41,6 +42,11 @@ const AiDetectionRoute = AiDetectionRouteImport.update({
   path: '/ai-detection',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -49,6 +55,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/ai-detection': typeof AiDetectionRoute
   '/billing': typeof BillingRoute
   '/login': typeof LoginRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/ai-detection': typeof AiDetectionRoute
   '/billing': typeof BillingRoute
   '/login': typeof LoginRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/ai-detection': typeof AiDetectionRoute
   '/billing': typeof BillingRoute
   '/login': typeof LoginRoute
@@ -74,12 +83,27 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/ai-detection' | '/billing' | '/login' | '/logs' | '/soar'
+  fullPaths:
+    | '/'
+    | '/account'
+    | '/ai-detection'
+    | '/billing'
+    | '/login'
+    | '/logs'
+    | '/soar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/ai-detection' | '/billing' | '/login' | '/logs' | '/soar'
+  to:
+    | '/'
+    | '/account'
+    | '/ai-detection'
+    | '/billing'
+    | '/login'
+    | '/logs'
+    | '/soar'
   id:
     | '__root__'
     | '/'
+    | '/account'
     | '/ai-detection'
     | '/billing'
     | '/login'
@@ -89,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRoute
   AiDetectionRoute: typeof AiDetectionRoute
   BillingRoute: typeof BillingRoute
   LoginRoute: typeof LoginRoute
@@ -133,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AiDetectionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -145,6 +177,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRoute,
   AiDetectionRoute: AiDetectionRoute,
   BillingRoute: BillingRoute,
   LoginRoute: LoginRoute,

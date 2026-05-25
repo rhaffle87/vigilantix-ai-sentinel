@@ -227,8 +227,11 @@ function TopBar() {
     markNotificationRead,
     clearNotifications,
   } = useSim();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const router = useRouter();
+  const userInitials = user?.email
+    ? user.email.split("@")[0].slice(0, 2).toUpperCase()
+    : "OP";
   const alerting = stage !== "idle" && stage !== "complete";
   const mounted = useMounted();
   const [isFocused, setIsFocused] = useState(false);
@@ -490,13 +493,13 @@ function TopBar() {
         <LogOut className="h-4 w-4" aria-hidden="true" />
       </button>
 
-      <div
-        role="img"
-        aria-label="Operator initials: SO"
-        className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-primary text-xs font-bold text-primary-foreground select-none"
+      <Link
+        to="/account"
+        aria-label="Operator Profile & Preferences"
+        className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-primary text-xs font-bold text-primary-foreground select-none transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-md hover:shadow-primary/20 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none"
       >
-        SO
-      </div>
+        {userInitials}
+      </Link>
     </header>
   );
 }
