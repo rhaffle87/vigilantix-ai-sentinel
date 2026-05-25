@@ -610,63 +610,64 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
 
   // Fetch initial telemetry from Supabase or load fallback in-memory mock data
   useEffect(() => {
+    const mockInitialLogs: LogEntry[] = [
+      { id: "log-1", ts: Date.now() - 60000, source: "network", srcIp: "192.168.1.105", dstIp: "10.0.0.15", message: "TCP SYN ack", severity: "info", anomaly: 12 },
+      { id: "log-2", ts: Date.now() - 120000, source: "endpoint", srcIp: "10.0.4.12", dstIp: "10.0.0.1", message: "EDR heartbeat", severity: "info", anomaly: 5 },
+      { id: "log-3", ts: Date.now() - 180000, source: "server", srcIp: "10.0.2.55", dstIp: "10.0.2.1", message: "Nginx 200 /api/health", severity: "info", anomaly: 8 },
+      { id: "log-4", ts: Date.now() - 240000, source: "firewall", srcIp: "88.23.45.112", dstIp: "10.0.0.12", message: "Rule match: allow 443", severity: "info", anomaly: 15 },
+      { id: "log-5", ts: Date.now() - 300000, source: "auth", srcIp: "10.0.5.99", dstIp: "10.0.0.2", message: "Session start", severity: "info", anomaly: 22 },
+      { id: "log-6", ts: Date.now() - 360000, source: "network", srcIp: "10.0.4.88", dstIp: "192.168.1.200", message: "DNS query resolved", severity: "info", anomaly: 10 },
+      { id: "log-7", ts: Date.now() - 420000, source: "endpoint", srcIp: "10.0.4.12", dstIp: "10.0.0.1", message: "Process exec: chrome.exe", severity: "info", anomaly: 18 },
+      { id: "log-8", ts: Date.now() - 480000, source: "server", srcIp: "10.0.2.56", dstIp: "10.0.2.1", message: "DB query 12ms", severity: "info", anomaly: 11 },
+      { id: "log-9", ts: Date.now() - 540000, source: "firewall", srcIp: "142.250.74.46", dstIp: "10.0.0.12", message: "Rate limit ok", severity: "info", anomaly: 7 },
+      { id: "log-10", ts: Date.now() - 600000, source: "auth", srcIp: "10.0.5.99", dstIp: "10.0.0.2", message: "MFA verify ok", severity: "info", anomaly: 14 },
+    ];
+
+    const initialIncidents: Incident[] = [
+      {
+        id: "INC-9281",
+        ts: Date.now() - 4 * 3600000,
+        title: "Brute force on auth gateway",
+        srcIp: "185.220.101.45",
+        anomaly: 92,
+        status: "resolved",
+        playbook: "PB-Auth-Lockdown",
+        vtVerdict: "malicious",
+      },
+      {
+        id: "INC-9275",
+        ts: Date.now() - 26 * 3600000,
+        title: "Suspicious PowerShell on WIN-EP-22",
+        srcIp: "10.0.4.21",
+        anomaly: 88,
+        status: "resolved",
+        playbook: "PB-EDR-Isolate",
+        vtVerdict: "suspicious",
+      },
+    ];
+
+    const today = new Date().toDateString();
+    const todayAlerts = initialIncidents.filter(
+      (i) => new Date(i.ts).toDateString() === today
+    ).length;
+
+    const totalPoints = 24;
+    const nowTs = Date.now();
+    const initialSeries = Array.from({ length: totalPoints }, (_, idx) => {
+      const hoursAgo = totalPoints - 1 - idx;
+      const shiftedTime = new Date(nowTs - hoursAgo * 3600000);
+      return {
+        t: shiftedTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        events: 1000 + Math.floor(Math.random() * 400),
+        anomalies: 5 + Math.floor(Math.random() * 25),
+        blocked: Math.floor(Math.random() * 8),
+      };
+    });
+
     if (!user) {
-      const mockInitialLogs: LogEntry[] = [
-        { id: "log-1", ts: Date.now() - 60000, source: "network", srcIp: "192.168.1.105", dstIp: "10.0.0.15", message: "TCP SYN ack", severity: "info", anomaly: 12 },
-        { id: "log-2", ts: Date.now() - 120000, source: "endpoint", srcIp: "10.0.4.12", dstIp: "10.0.0.1", message: "EDR heartbeat", severity: "info", anomaly: 5 },
-        { id: "log-3", ts: Date.now() - 180000, source: "server", srcIp: "10.0.2.55", dstIp: "10.0.2.1", message: "Nginx 200 /api/health", severity: "info", anomaly: 8 },
-        { id: "log-4", ts: Date.now() - 240000, source: "firewall", srcIp: "88.23.45.112", dstIp: "10.0.0.12", message: "Rule match: allow 443", severity: "info", anomaly: 15 },
-        { id: "log-5", ts: Date.now() - 300000, source: "auth", srcIp: "10.0.5.99", dstIp: "10.0.0.2", message: "Session start", severity: "info", anomaly: 22 },
-        { id: "log-6", ts: Date.now() - 360000, source: "network", srcIp: "10.0.4.88", dstIp: "192.168.1.200", message: "DNS query resolved", severity: "info", anomaly: 10 },
-        { id: "log-7", ts: Date.now() - 420000, source: "endpoint", srcIp: "10.0.4.12", dstIp: "10.0.0.1", message: "Process exec: chrome.exe", severity: "info", anomaly: 18 },
-        { id: "log-8", ts: Date.now() - 480000, source: "server", srcIp: "10.0.2.56", dstIp: "10.0.2.1", message: "DB query 12ms", severity: "info", anomaly: 11 },
-        { id: "log-9", ts: Date.now() - 540000, source: "firewall", srcIp: "142.250.74.46", dstIp: "10.0.0.12", message: "Rate limit ok", severity: "info", anomaly: 7 },
-        { id: "log-10", ts: Date.now() - 600000, source: "auth", srcIp: "10.0.5.99", dstIp: "10.0.0.2", message: "MFA verify ok", severity: "info", anomaly: 14 },
-      ];
       setLogs(mockInitialLogs);
-
-      const initialIncidents: Incident[] = [
-        {
-          id: "INC-9281",
-          ts: Date.now() - 4 * 3600000,
-          title: "Brute force on auth gateway",
-          srcIp: "185.220.101.45",
-          anomaly: 92,
-          status: "resolved",
-          playbook: "PB-Auth-Lockdown",
-          vtVerdict: "malicious",
-        },
-        {
-          id: "INC-9275",
-          ts: Date.now() - 26 * 3600000,
-          title: "Suspicious PowerShell on WIN-EP-22",
-          srcIp: "10.0.4.21",
-          anomaly: 88,
-          status: "resolved",
-          playbook: "PB-EDR-Isolate",
-          vtVerdict: "suspicious",
-        },
-      ];
       setIncidents(initialIncidents);
-      
-      const today = new Date().toDateString();
-      const todayAlerts = initialIncidents.filter(
-        (i) => new Date(i.ts).toDateString() === today
-      ).length;
       setMetrics((m) => ({ ...m, alertsToday: todayAlerts }));
-
-      const totalPoints = 24;
-      const nowTs = Date.now();
-      const initialSeries = Array.from({ length: totalPoints }, (_, idx) => {
-        const hoursAgo = totalPoints - 1 - idx;
-        const shiftedTime = new Date(nowTs - hoursAgo * 3600000);
-        return {
-          t: shiftedTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          events: 1000 + Math.floor(Math.random() * 400),
-          anomalies: 5 + Math.floor(Math.random() * 25),
-          blocked: Math.floor(Math.random() * 8),
-        };
-      });
       setSeries(initialSeries);
       return;
     }
@@ -680,8 +681,10 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
           .order("ts", { ascending: false })
           .limit(100);
 
-        if (dbLogs) {
+        if (dbLogs && dbLogs.length > 0) {
           setLogs(dbLogs.map(mapLogFromDb));
+        } else {
+          setLogs(mockInitialLogs);
         }
 
         // Incidents
@@ -690,7 +693,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
           .select("*")
           .order("created_at", { ascending: false });
 
-        if (dbIncidents) {
+        if (dbIncidents && dbIncidents.length > 0) {
           const now = Date.now();
           const activeThreshold = 2 * 60 * 1000; // 2 minutes
 
@@ -720,11 +723,10 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
           setIncidents(mappedIncidents);
 
           // Update alertsToday count
-          const today = new Date().toDateString();
-          const todayAlerts = mappedIncidents.filter(
+          const todayAlertsDb = mappedIncidents.filter(
             (i) => new Date(i.ts).toDateString() === today
           ).length;
-          setMetrics((m) => ({ ...m, alertsToday: todayAlerts }));
+          setMetrics((m) => ({ ...m, alertsToday: todayAlertsDb }));
 
           // Soar tasks for active incidents
           const active = finalIncidents.find(
@@ -742,6 +744,9 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
               setAttacking(true);
             }
           }
+        } else {
+          setIncidents(initialIncidents);
+          setMetrics((m) => ({ ...m, alertsToday: todayAlerts }));
         }
 
         // Metric series
@@ -752,11 +757,11 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
           .limit(24);
 
         if (dbSeries && dbSeries.length > 0) {
-          const totalPoints = dbSeries.length;
-          const nowTs = Date.now();
+          const totalPointsDb = dbSeries.length;
+          const nowTsDb = Date.now();
           const mapped = dbSeries.map((s, idx) => {
-            const hoursAgo = totalPoints - 1 - idx;
-            const shiftedTime = new Date(nowTs - hoursAgo * 3600000);
+            const hoursAgo = totalPointsDb - 1 - idx;
+            const shiftedTime = new Date(nowTsDb - hoursAgo * 3600000);
             return {
               t: shiftedTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
               events: s.events,
@@ -765,9 +770,15 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
             };
           });
           setSeries(mapped);
+        } else {
+          setSeries(initialSeries);
         }
       } catch (err) {
         console.error("Failed to load telemetry from Supabase database:", err);
+        setLogs(mockInitialLogs);
+        setIncidents(initialIncidents);
+        setMetrics((m) => ({ ...m, alertsToday: todayAlerts }));
+        setSeries(initialSeries);
       }
     }
 

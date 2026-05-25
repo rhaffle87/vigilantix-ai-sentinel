@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -126,6 +126,47 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+function ProtectedLayout({ children }: { children: React.ReactNode }) {
+  const { session, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !session) {
+      router.navigate({ to: "/login" });
+    }
+  }, [isLoading, session, router]);
+
+  if (isLoading || !session) {
+    return (
+      <div className="relative flex min-h-screen items-center justify-center bg-background px-4">
+        {/* Futuristic subtle network line background */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.1),rgba(255,255,255,0))]" />
+        
+        <div className="relative flex flex-col items-center gap-4 text-center">
+          <div className="relative flex h-16 w-16 items-center justify-center">
+            {/* Spinning accent circle */}
+            <div className="absolute inset-0 animate-spin rounded-full border-2 border-primary/20 border-t-accent" />
+            {/* Inner pulsing shield core */}
+            <div className="h-8 w-8 animate-pulse rounded-full bg-accent/20 flex items-center justify-center border border-accent/40">
+              <ShieldAlert className="h-4 w-4 text-accent" />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs font-mono uppercase tracking-[0.3em] text-accent animate-pulse">
+              Authenticating Terminal
+            </p>
+            <p className="text-[10px] font-mono text-muted-foreground">
+              Establishing encrypted tunnel to Vigilantix SOC...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
@@ -140,21 +181,23 @@ function RootComponent() {
             <Toaster />
           </>
         ) : (
-          <SimulationProvider>
-            <SidebarProvider>
-              <div className="flex min-h-screen w-full bg-background text-foreground">
-                <AppSidebar />
-                <div className="flex min-w-0 flex-1 flex-col">
-                  <TopBar />
-                  <main className="flex-1 overflow-x-hidden">
-                    <Outlet />
-                  </main>
+          <ProtectedLayout>
+            <SimulationProvider>
+              <SidebarProvider>
+                <div className="flex min-h-screen w-full bg-background text-foreground">
+                  <AppSidebar />
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    <TopBar />
+                    <main className="flex-1 overflow-x-hidden">
+                      <Outlet />
+                    </main>
+                  </div>
                 </div>
-              </div>
-              <SimulationController />
-              <Toaster />
-            </SidebarProvider>
-          </SimulationProvider>
+                <SimulationController />
+                <Toaster />
+              </SidebarProvider>
+            </SimulationProvider>
+          </ProtectedLayout>
         )}
       </AuthProvider>
     </QueryClientProvider>

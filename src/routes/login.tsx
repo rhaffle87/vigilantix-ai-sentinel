@@ -1,9 +1,17 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { Shield } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/login")({
+  beforeLoad: async () => {
+    if (typeof window !== "undefined") {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        throw redirect({ to: "/" });
+      }
+    }
+  },
   component: LoginPage,
   head: () => ({ meta: [{ title: "Authenticate · VIGILANTIX AI" }] }),
 });

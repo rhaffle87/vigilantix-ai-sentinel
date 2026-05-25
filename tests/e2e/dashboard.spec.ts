@@ -83,6 +83,7 @@ test.describe("Vigilantix AI SOC Command Center E2E", () => {
 
       // Count initial log rows displayed in the table body
       const initialRowSelector = "tbody tr";
+      await page.waitForSelector(initialRowSelector);
       const initialRowsCount = await page.locator(initialRowSelector).count();
 
       // Type a nonexistent search query to filter out all items

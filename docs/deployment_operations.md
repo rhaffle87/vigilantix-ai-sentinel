@@ -10,7 +10,7 @@ A `.env` file must reside in the project root directory. Here is the configurati
 
 | Key | Description | Required? | Example Value | Security Impact |
 | :--- | :--- | :---: | :--- | :--- |
-| `VITE_SUPABASE_URL` | Public endpoint API for Supabase project instance | **Yes** | `https://gbxjeahdfmyewetqxuqc.supabase.co` | Safe to expose; handles requests filtered by Row Level Security. |
+| `VITE_SUPABASE_URL` | Public endpoint API for Supabase project instance | **Yes** | `https://your-project-id.supabase.co` | Safe to expose; handles requests filtered by Row Level Security. |
 | `VITE_SUPABASE_ANON_KEY` | Supabase anonymous API key for public requests | **Yes** | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` | Safe to expose; authenticated queries trigger custom security checks. |
 
 ---
