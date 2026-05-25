@@ -429,7 +429,10 @@ function TopBar() {
           </button>
 
           {isNotifOpen && (
-            <div id="notifications-dropdown" className="absolute right-0 top-full z-50 mt-2 w-[340px] max-w-[calc(100vw-2rem)] rounded-md border border-border bg-card/95 backdrop-blur shadow-2xl glow-primary">
+            <div
+              id="notifications-dropdown"
+              className="fixed left-4 right-4 top-16 md:absolute md:left-auto md:right-0 md:top-full md:w-[340px] z-50 md:mt-2 rounded-md border border-border bg-card/95 backdrop-blur shadow-2xl glow-primary"
+            >
               <div className="flex items-center justify-between border-b border-border/60 px-3 py-2">
                 <span id="notifications-title" className="text-[10px] font-semibold uppercase tracking-wider text-accent">
                   System Alerts & Logs ({notifications.filter((n) => !n.read).length} Unread)

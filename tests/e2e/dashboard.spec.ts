@@ -136,7 +136,7 @@ test.describe("Vigilantix AI SOC Command Center E2E", () => {
       await expect(page.locator("h1")).toHaveText("Operator Profile & Terminal Settings");
 
       // Verify operator roster contains Rafli
-      await expect(page.locator("text=Rafli A. I. Hartono")).toBeVisible();
+      await expect(page.locator("text=Rafli A. I. Hartono").first()).toBeVisible();
 
       // Test copying User ID is functional (or check its visibility)
       await expect(page.locator("text=e81d77a2-f8ab-40b8-9382-b7e615e440e2")).toBeVisible();

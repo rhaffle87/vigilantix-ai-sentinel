@@ -152,7 +152,7 @@ function AccountPage() {
   }[preferences.region] || preferences.region;
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <div className="mx-auto max-w-[1600px] space-y-6">
         {/* Header section */}
         <div>
@@ -167,7 +167,7 @@ function AccountPage() {
         <div className="grid gap-6 lg:grid-cols-3">
           
           {/* Identity Card */}
-          <div className="rounded-lg border border-border bg-card p-5 relative overflow-hidden flex flex-col justify-between min-h-[300px]">
+          <div className="rounded-lg border border-border bg-card p-4 sm:p-5 relative overflow-hidden flex flex-col justify-between min-h-[300px]">
             <div className="absolute inset-0 bg-gradient-primary opacity-5" />
             
             <div className="relative space-y-4">
@@ -239,7 +239,7 @@ function AccountPage() {
           </div>
 
           {/* Preferences Configuration */}
-          <div className="rounded-lg border border-border bg-card p-5 lg:col-span-2 space-y-4">
+          <div className="rounded-lg border border-border bg-card p-4 sm:p-5 lg:col-span-2 space-y-4 min-w-0">
             <div className="flex flex-col gap-2.5 border-b border-border/60 pb-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <h3 className="flex items-center gap-2 text-sm font-semibold tracking-tight text-foreground">
                 <Settings className="h-4 w-4 text-accent" /> Preferred Environment Settings
@@ -355,7 +355,7 @@ function AccountPage() {
         <div className="grid gap-6 lg:grid-cols-3">
           
           {/* Operator List */}
-          <div className="rounded-lg border border-border bg-card p-5 lg:col-span-2 space-y-4">
+          <div className="rounded-lg border border-border bg-card p-4 sm:p-5 lg:col-span-2 space-y-4 min-w-0">
             <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
               <div className="space-y-0.5">
                 <h3 className="flex items-center gap-2 text-sm font-semibold tracking-tight text-foreground">
@@ -431,8 +431,9 @@ function AccountPage() {
               </form>
             )}
 
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[650px] text-left text-xs">
+            {/* Desktop View - Table */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full min-w-[600px] text-left text-xs">
                 <thead>
                   <tr className="border-b border-border/40 text-muted-foreground uppercase font-mono text-[9px] tracking-wider">
                     <th className="py-2">Operator ID</th>
@@ -472,10 +473,45 @@ function AccountPage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Mobile View - Stacked Cards */}
+            <div className="sm:hidden space-y-3">
+              {operators.map((op) => (
+                <div key={op.id} className="rounded-md border border-border/40 bg-muted/10 p-3 space-y-2">
+                  <div className="flex items-center justify-between border-b border-border/20 pb-1.5">
+                    <span className="font-mono text-[10px] text-muted-foreground">{op.id}</span>
+                    <span className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-semibold ${
+                      op.status === "active"
+                        ? "bg-success/15 text-success"
+                        : op.status === "standby"
+                          ? "bg-warning/15 text-warning"
+                          : "bg-muted text-muted-foreground"
+                    }`}>
+                      <span className={`h-1 w-1 rounded-full ${
+                        op.status === "active"
+                          ? "bg-success"
+                          : op.status === "standby"
+                            ? "bg-warning"
+                            : "bg-muted-foreground"
+                      }`} />
+                      {op.status === "active" ? "Active" : op.status === "standby" ? "Standby" : "Off-duty"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-baseline gap-2">
+                    <span className="font-semibold text-foreground text-xs">{op.name}</span>
+                    <span className="text-[10px] text-muted-foreground text-right">{op.role}</span>
+                  </div>
+                  <div className="flex justify-between text-[10px] text-muted-foreground font-mono">
+                    <span>IP Address:</span>
+                    <span>{op.ip}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Quick Config Details Summary */}
-          <div className="rounded-lg border border-border bg-card p-5 space-y-4">
+          <div className="rounded-lg border border-border bg-card p-4 sm:p-5 space-y-4 min-w-0">
             <h3 className="flex items-center gap-2 text-sm font-semibold tracking-tight text-foreground">
               <Shield className="h-4 w-4 text-accent" /> Active Terminal Profile
             </h3>
