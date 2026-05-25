@@ -66,23 +66,23 @@ function IndexPage() {
   const logs = useMemo(() => {
     return q
       ? allLogs.filter(
-          (l) =>
-            l.message.toLowerCase().includes(q) ||
-            l.srcIp.toLowerCase().includes(q) ||
-            l.dstIp.toLowerCase().includes(q) ||
-            (l.hash && l.hash.toLowerCase().includes(q))
-        )
+        (l) =>
+          l.message.toLowerCase().includes(q) ||
+          l.srcIp.toLowerCase().includes(q) ||
+          l.dstIp.toLowerCase().includes(q) ||
+          (l.hash && l.hash.toLowerCase().includes(q))
+      )
       : allLogs;
   }, [allLogs, q]);
 
   const filteredIncidents = useMemo(() => {
     return q
       ? incidents.filter(
-          (i) =>
-            i.title.toLowerCase().includes(q) ||
-            i.srcIp.toLowerCase().includes(q) ||
-            i.id.toLowerCase().includes(q)
-        )
+        (i) =>
+          i.title.toLowerCase().includes(q) ||
+          i.srcIp.toLowerCase().includes(q) ||
+          i.id.toLowerCase().includes(q)
+      )
       : incidents;
   }, [incidents, q]);
 
@@ -199,13 +199,12 @@ function IndexPage() {
               {mounted && clusters.map((c) => (
                 <div key={c.region} className="flex items-center gap-1.5 whitespace-nowrap" title={`${c.name} - Latency: ${c.latency}ms`}>
                   <span
-                    className={`h-1.5 w-1.5 rounded-full shrink-0 ${
-                      c.status === "online"
-                        ? "bg-success animate-pulse"
-                        : c.status === "degraded"
-                          ? "bg-warning animate-flicker"
-                          : "bg-destructive"
-                    }`}
+                    className={`h-1.5 w-1.5 rounded-full shrink-0 ${c.status === "online"
+                      ? "bg-success animate-pulse"
+                      : c.status === "degraded"
+                        ? "bg-warning animate-flicker"
+                        : "bg-destructive"
+                      }`}
                   />
                   <span className="font-mono text-muted-foreground">{c.region}</span>
                   <span className={`font-mono text-[10px] ${c.status === "degraded" ? "text-warning font-semibold" : "text-accent"}`}>
@@ -312,7 +311,7 @@ function IndexPage() {
                 <Shield className="h-4 w-4 text-accent" /> Regulatory Compliance Auditor
               </h3>
               <p className="text-xs text-muted-foreground mb-3">Real-time ISO 27001 & SOC 2 audit readiness</p>
-              
+
               <div className="flex items-center justify-between bg-muted/30 border border-border/80 rounded-xl p-3 mb-3">
                 <div className="flex flex-col gap-0.5">
                   <span className="font-mono text-2xl font-bold tracking-tight text-foreground">
@@ -320,13 +319,12 @@ function IndexPage() {
                   </span>
                   <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">Enterprise Score</span>
                 </div>
-                <div className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-mono font-semibold uppercase ${
-                  complianceScore > 85
-                    ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400"
-                    : complianceScore > 60
-                      ? "bg-amber-500/10 border border-amber-500/30 text-amber-400"
-                      : "bg-red-500/10 border border-red-500/30 text-red-400"
-                }`}>
+                <div className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-mono font-semibold uppercase ${complianceScore > 85
+                  ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400"
+                  : complianceScore > 60
+                    ? "bg-amber-500/10 border border-amber-500/30 text-amber-400"
+                    : "bg-red-500/10 border border-red-500/30 text-red-400"
+                  }`}>
                   <Sparkles className="w-3.5 h-3.5" />
                   {complianceScore > 85 ? "Optimal" : complianceScore > 60 ? "Degraded" : "Breached"}
                 </div>
@@ -451,13 +449,12 @@ function IndexPage() {
               {assets.map((row) => (
                 <li key={row.n} className="flex items-center gap-2">
                   <span
-                    className={`h-2 w-2 rounded-full ${
-                      row.s === "fail"
-                        ? "bg-destructive animate-pulse scale-125 shadow-destructive"
-                        : row.s === "ok"
-                          ? "bg-success"
-                          : "bg-warning animate-flicker"
-                    }`}
+                    className={`h-2 w-2 rounded-full ${row.s === "fail"
+                      ? "bg-destructive animate-pulse scale-125 shadow-destructive"
+                      : row.s === "ok"
+                        ? "bg-success"
+                        : "bg-warning animate-flicker"
+                      }`}
                   />
                   <span className="flex-1 text-muted-foreground">{row.n}</span>
                   <span className="font-mono text-foreground">{row.v}%</span>
@@ -476,11 +473,10 @@ function IndexPage() {
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-accent">{i.id}</span>
                     <span
-                      className={`rounded px-1.5 py-0.5 text-[10px] uppercase tracking-wider ${
-                        i.status === "resolved"
-                          ? "bg-success/15 text-success"
-                          : "bg-warning/15 text-warning"
-                      }`}
+                      className={`rounded px-1.5 py-0.5 text-[10px] uppercase tracking-wider ${i.status === "resolved"
+                        ? "bg-success/15 text-success"
+                        : "bg-warning/15 text-warning"
+                        }`}
                     >
                       {i.status}
                     </span>
@@ -512,7 +508,7 @@ function IndexPage() {
                 <span className="col-span-1 text-center">→</span>
                 <span className="col-span-2">Dest IP</span>
                 <span className="col-span-3">Event Message</span>
-                <span className="col-span-1 text-right">Anomaly (%)</span>
+                <span className="col-span-1 text-right">Anomaly</span>
               </div>
               <div className="max-h-72 overflow-y-auto font-mono text-[11px]">
                 {logs.slice(0, 25).map((l) => (
@@ -529,15 +525,14 @@ function IndexPage() {
                     <span className="col-span-2 text-foreground">{l.dstIp}</span>
                     <span className="col-span-3 truncate text-muted-foreground">{l.message}</span>
                     <span
-                      className={`col-span-1 text-right ${
-                        l.anomaly > 80
-                          ? "text-destructive"
-                          : l.anomaly > 50
-                            ? "text-warning"
-                            : "text-success"
-                      }`}
+                      className={`col-span-1 text-right ${l.anomaly > 80
+                        ? "text-destructive"
+                        : l.anomaly > 50
+                          ? "text-warning"
+                          : "text-success"
+                        }`}
                     >
-                      {l.anomaly.toFixed(0)}
+                      {l.anomaly.toFixed(0)}%
                     </span>
                   </div>
                 ))}
