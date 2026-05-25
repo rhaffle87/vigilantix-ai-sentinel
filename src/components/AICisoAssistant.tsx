@@ -114,7 +114,7 @@ export function AICisoAssistant() {
       {/* Floating terminal trigger button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-[368px] z-40 bg-accent hover:bg-accent/80 text-accent-foreground px-4 py-3 rounded-full flex items-center gap-2 shadow-2xl hover:scale-105 transition-all duration-300 group border border-border/40 font-semibold"
+        className="fixed bottom-[72px] right-4 sm:bottom-6 sm:right-[368px] z-40 bg-accent hover:bg-accent/80 text-accent-foreground px-4 py-3 rounded-full flex items-center gap-2 shadow-2xl hover:scale-105 transition-all duration-300 group border border-border/40 font-semibold"
       >
         <MessageSquare className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
         <span className="font-mono text-xs uppercase tracking-wider">Virtual CISO</span>
@@ -128,7 +128,7 @@ export function AICisoAssistant() {
 
       {/* Slide-out Terminal Chat Screen */}
       {isOpen && (
-        <div className="fixed bottom-24 right-[368px] w-[420px] h-[520px] bg-card/95 border border-border/80 rounded-2xl shadow-2xl flex flex-col z-40 backdrop-blur-xl overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
+        <div className="fixed bottom-[136px] left-4 right-4 sm:bottom-24 sm:right-[368px] sm:left-auto w-auto sm:w-[420px] h-[480px] sm:h-[520px] bg-card/95 border border-border/80 rounded-2xl shadow-2xl flex flex-col z-40 backdrop-blur-xl overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
           
           {/* Header */}
           <div className="p-3 border-b border-border/60 bg-muted/50 flex items-center justify-between">

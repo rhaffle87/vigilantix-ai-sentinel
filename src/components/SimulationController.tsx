@@ -30,7 +30,7 @@ export function SimulationController() {
   const idx = ORDER.indexOf(stage);
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-[340px] rounded-lg border border-border bg-card/95 backdrop-blur shadow-2xl glow-primary">
+    <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 z-50 w-auto sm:w-[340px] rounded-lg border border-border bg-card/95 backdrop-blur shadow-2xl glow-primary">
       <div className="flex items-center justify-between border-b border-border px-3 py-2">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">

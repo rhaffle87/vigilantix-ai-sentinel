@@ -20,6 +20,11 @@ export const Route = createFileRoute("/logs")({
   }),
 });
 
+const formatTime = (ts: number) => {
+  const d = new Date(ts);
+  return `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}:${d.getSeconds().toString().padStart(2, "0")}`;
+};
+
 function LogsPage() {
   const { logs, metrics, searchQuery } = useSim();
   const [filter, setFilter] = useState<string>("all");
@@ -164,7 +169,7 @@ function LogsPage() {
                     }`}
                   >
                     <td className="px-3 py-1.5 text-muted-foreground">
-                      {mounted ? new Date(l.ts).toLocaleTimeString() : "--:--:--"}
+                      {mounted ? formatTime(l.ts) : "--:--:--"}
                     </td>
                     <td className="px-3 py-1.5 uppercase text-accent">{l.source}</td>
                     <td className="px-3 py-1.5">{l.srcIp}</td>

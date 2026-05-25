@@ -151,7 +151,7 @@ function AIDetectionPage() {
                     }}
                     itemStyle={{ color: "var(--foreground)" }}
                   />
-                  <Scatter data={scatter} fill="var(--chart-1)" />
+                  <Scatter data={scatter} fill="var(--chart-1)" isAnimationActive={false} />
                 </ScatterChart>
               </ResponsiveContainer>
             </div>
@@ -179,6 +179,7 @@ function AIDetectionPage() {
                     stroke="var(--chart-2)"
                     fill="var(--chart-2)"
                     fillOpacity={0.35}
+                    isAnimationActive={false}
                   />
                 </RadarChart>
               </ResponsiveContainer>

@@ -210,9 +210,9 @@ function BillingPage() {
                     }}
                     itemStyle={{ color: "var(--foreground)" }}
                   />
-                  <Area type="monotone" dataKey="compute" stroke="var(--chart-1)" fill="url(#c)" />
-                  <Area type="monotone" dataKey="storage" stroke="var(--chart-2)" fill="url(#s)" />
-                  <Area type="monotone" dataKey="egress" stroke="var(--chart-3)" fill="none" />
+                  <Area type="monotone" dataKey="compute" stroke="var(--chart-1)" fill="url(#c)" isAnimationActive={false} />
+                  <Area type="monotone" dataKey="storage" stroke="var(--chart-2)" fill="url(#s)" isAnimationActive={false} />
+                  <Area type="monotone" dataKey="egress" stroke="var(--chart-3)" fill="none" isAnimationActive={false} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -245,7 +245,7 @@ function BillingPage() {
                     }}
                     itemStyle={{ color: "var(--foreground)" }}
                   />
-                  <Bar dataKey="c" fill="var(--chart-1)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="c" fill="var(--chart-1)" radius={[4, 4, 0, 0]} isAnimationActive={false} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

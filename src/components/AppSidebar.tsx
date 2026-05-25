@@ -34,7 +34,7 @@ const items = [
 
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const path = useRouterState({ select: (r) => r.location.pathname });
   const { metrics } = useSim();
@@ -79,7 +79,11 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={it.url}>
                     <SidebarMenuButton asChild isActive={active}>
-                      <Link to={it.url} className="flex items-center gap-3">
+                      <Link
+                        to={it.url}
+                        className="flex items-center gap-3"
+                        onClick={() => setOpenMobile(false)}
+                      >
                         <it.icon className="h-4 w-4 shrink-0" />
                         {!collapsed && <span className="text-sm">{it.title}</span>}
                       </Link>

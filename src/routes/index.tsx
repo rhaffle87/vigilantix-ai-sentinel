@@ -53,6 +53,11 @@ export const Route = createFileRoute("/")({
 const CHART_BG = "var(--card)";
 const GRID = "oklch(0.3 0.04 260 / 50%)";
 
+const formatTime = (ts: number) => {
+  const d = new Date(ts);
+  return `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}:${d.getSeconds().toString().padStart(2, "0")}`;
+};
+
 function IndexPage() {
   const { metrics, series, logs: allLogs, incidents, activeIncident, searchQuery, clusters, complianceScore } = useSim();
   const mounted = useMounted();
@@ -188,13 +193,13 @@ function IndexPage() {
               Realtime telemetry, AI anomaly scoring, and orchestrated response across the enterprise estate.
             </p>
           </div>
-          <div className="flex items-center gap-3 rounded-md border border-border bg-card/50 px-3 py-2 text-xs">
-            <span className="text-muted-foreground font-medium">Clusters:</span>
-            <div className="flex gap-4">
+          <div className="flex flex-wrap items-center gap-3 rounded-md border border-border bg-card/50 px-3 py-2 text-xs w-full sm:w-auto">
+            <span className="text-muted-foreground font-medium whitespace-nowrap">Clusters:</span>
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 items-center">
               {mounted && clusters.map((c) => (
-                <div key={c.region} className="flex items-center gap-1.5" title={`${c.name} - Latency: ${c.latency}ms`}>
+                <div key={c.region} className="flex items-center gap-1.5 whitespace-nowrap" title={`${c.name} - Latency: ${c.latency}ms`}>
                   <span
-                    className={`h-1.5 w-1.5 rounded-full ${
+                    className={`h-1.5 w-1.5 rounded-full shrink-0 ${
                       c.status === "online"
                         ? "bg-success animate-pulse"
                         : c.status === "degraded"
@@ -209,7 +214,7 @@ function IndexPage() {
                 </div>
               ))}
               {!mounted && (
-                <span className="font-mono text-muted-foreground">Loading clusters...</span>
+                <span className="font-mono text-muted-foreground whitespace-nowrap">Loading clusters...</span>
               )}
             </div>
           </div>
@@ -291,9 +296,9 @@ function IndexPage() {
                       }}
                       itemStyle={{ color: "var(--foreground)" }}
                     />
-                    <Area type="monotone" dataKey="events" stroke="var(--chart-1)" fill="url(#ev)" strokeWidth={2} />
-                    <Area type="monotone" dataKey="anomalies" stroke="var(--chart-2)" fill="url(#an)" strokeWidth={2} />
-                    <Area type="monotone" dataKey="blocked" stroke="var(--chart-4)" fill="none" strokeWidth={2} />
+                    <Area type="monotone" dataKey="events" stroke="var(--chart-1)" fill="url(#ev)" strokeWidth={2} isAnimationActive={false} />
+                    <Area type="monotone" dataKey="anomalies" stroke="var(--chart-2)" fill="url(#an)" strokeWidth={2} isAnimationActive={false} />
+                    <Area type="monotone" dataKey="blocked" stroke="var(--chart-4)" fill="none" strokeWidth={2} isAnimationActive={false} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -377,6 +382,7 @@ function IndexPage() {
                       outerRadius={75}
                       paddingAngle={2}
                       stroke="var(--card)"
+                      isAnimationActive={false}
                     >
                       {threatMix.map((e) => (
                         <Cell key={e.name} fill={e.color} />
@@ -431,7 +437,7 @@ function IndexPage() {
                     }}
                     itemStyle={{ color: "var(--foreground)" }}
                   />
-                  <Bar dataKey="v" fill="var(--chart-4)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="v" fill="var(--chart-4)" radius={[4, 4, 0, 0]} isAnimationActive={false} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -497,42 +503,46 @@ function IndexPage() {
               Streaming · {logs.length} buffered
             </span>
           </div>
-          <div className="grid grid-cols-12 gap-2 bg-muted/20 border-b border-border px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            <span className="col-span-2">Timestamp</span>
-            <span className="col-span-1">Source</span>
-            <span className="col-span-2">Source IP</span>
-            <span className="col-span-1 text-center">→</span>
-            <span className="col-span-2">Dest IP</span>
-            <span className="col-span-3">Event Message</span>
-            <span className="col-span-1 text-right">Anomaly (%)</span>
-          </div>
-          <div className="max-h-72 overflow-auto font-mono text-[11px]">
-            {logs.slice(0, 25).map((l) => (
-              <div
-                key={l.id}
-                className="grid grid-cols-12 gap-2 border-b border-border/40 px-4 py-1.5 hover:bg-muted/30"
-              >
-                <span className="col-span-2 text-muted-foreground">
-                  {mounted ? new Date(l.ts).toLocaleTimeString() : "--:--:--"}
-                </span>
-                <span className="col-span-1 uppercase text-accent">{l.source}</span>
-                <span className="col-span-2 text-foreground">{l.srcIp}</span>
-                <span className="col-span-1 text-muted-foreground">→</span>
-                <span className="col-span-2 text-foreground">{l.dstIp}</span>
-                <span className="col-span-3 truncate text-muted-foreground">{l.message}</span>
-                <span
-                  className={`col-span-1 text-right ${
-                    l.anomaly > 80
-                      ? "text-destructive"
-                      : l.anomaly > 50
-                        ? "text-warning"
-                        : "text-success"
-                  }`}
-                >
-                  {l.anomaly.toFixed(0)}
-                </span>
+          <div className="w-full overflow-x-auto scrollbar-thin">
+            <div className="min-w-[750px]">
+              <div className="grid grid-cols-12 gap-2 bg-muted/20 border-b border-border px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                <span className="col-span-2">Timestamp</span>
+                <span className="col-span-1">Source</span>
+                <span className="col-span-2">Source IP</span>
+                <span className="col-span-1 text-center">→</span>
+                <span className="col-span-2">Dest IP</span>
+                <span className="col-span-3">Event Message</span>
+                <span className="col-span-1 text-right">Anomaly (%)</span>
               </div>
-            ))}
+              <div className="max-h-72 overflow-y-auto font-mono text-[11px]">
+                {logs.slice(0, 25).map((l) => (
+                  <div
+                    key={l.id}
+                    className="grid grid-cols-12 gap-2 border-b border-border/40 px-4 py-1.5 hover:bg-muted/30"
+                  >
+                    <span className="col-span-2 text-muted-foreground">
+                      {mounted ? formatTime(l.ts) : "--:--:--"}
+                    </span>
+                    <span className="col-span-1 uppercase text-accent">{l.source}</span>
+                    <span className="col-span-2 text-foreground">{l.srcIp}</span>
+                    <span className="col-span-1 text-muted-foreground">→</span>
+                    <span className="col-span-2 text-foreground">{l.dstIp}</span>
+                    <span className="col-span-3 truncate text-muted-foreground">{l.message}</span>
+                    <span
+                      className={`col-span-1 text-right ${
+                        l.anomaly > 80
+                          ? "text-destructive"
+                          : l.anomaly > 50
+                            ? "text-warning"
+                            : "text-success"
+                      }`}
+                    >
+                      {l.anomaly.toFixed(0)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -237,6 +237,21 @@ function TopBar() {
   const [isFocused, setIsFocused] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
 
+  const [localSearch, setLocalSearch] = useState(searchQuery);
+
+  // Sync local search when global searchQuery changes (e.g., via clicks)
+  useEffect(() => {
+    setLocalSearch(searchQuery);
+  }, [searchQuery]);
+
+  // Debounce global state update
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearchQuery(localSearch);
+    }, 200);
+    return () => clearTimeout(handler);
+  }, [localSearch, setSearchQuery]);
+
   const handleSignOut = async () => {
     await signOut();
     router.navigate({ to: "/login" });
@@ -302,19 +317,19 @@ function TopBar() {
           id="search-input"
           name="search"
           type="search"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={localSearch}
+          onChange={(e) => setLocalSearch(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setTimeout(() => setIsFocused(false), 200)}
           aria-label="Search logs, IPs, hashes"
           placeholder="Search logs, IPs, hashes…"
           className="h-8 w-full rounded-md border border-border bg-muted/40 pl-7 pr-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-accent focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none focus:outline-none"
         />
-        {isFocused && searchQuery.trim() !== "" && (
+        {isFocused && localSearch.trim() !== "" && (
           <div className="absolute left-0 right-0 top-full z-50 mt-1.5 max-h-[320px] overflow-y-auto rounded-md border border-border bg-card/95 backdrop-blur p-2 shadow-2xl glow-primary">
             {matchedIncidents.length === 0 && matchedLogs.length === 0 ? (
               <div className="py-4 text-center text-xs text-muted-foreground">
-                No results found for "{searchQuery}"
+                No results found for "{localSearch}"
               </div>
             ) : (
               <div className="space-y-3">

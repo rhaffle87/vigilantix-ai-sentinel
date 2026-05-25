@@ -280,6 +280,8 @@ interface SimState {
 
 const Ctx = createContext<SimState | null>(null);
 
+let sharedAudioCtx: AudioContext | null = null;
+
 const INITIAL_TASKS: SoarTask[] = ATTACK_VARIANTS[0].tasks;
 
 function mapLogFromDb(dbLog: any): LogEntry {
@@ -498,7 +500,13 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     try {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioCtx) return;
-      const ctx = new AudioCtx();
+      if (!sharedAudioCtx) {
+        sharedAudioCtx = new AudioCtx();
+      }
+      const ctx = sharedAudioCtx;
+      if (ctx.state === "suspended") {
+        ctx.resume();
+      }
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       
@@ -792,7 +800,12 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         { event: "INSERT", schema: "public", table: "logs" },
         (payload) => {
           const newLog = mapLogFromDb(payload.new);
-          setLogs((prev) => [newLog, ...prev].slice(0, 200));
+          setLogs((prev) => {
+            if (prev.some((log) => log.id === newLog.id)) {
+              return prev;
+            }
+            return [newLog, ...prev].slice(0, 200);
+          });
 
           // Increment event count on the latest chart point dynamically
           setSeries((prev) => {
@@ -949,7 +962,12 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
           severity: template.severity as any,
           anomaly,
         };
-        setLogs((prev) => [localLog, ...prev].slice(0, 200));
+        setLogs((prev) => {
+          if (prev.some((log) => log.id === localLog.id)) {
+            return prev;
+          }
+          return [localLog, ...prev].slice(0, 200);
+        });
 
         // Increment event count on the latest chart point dynamically
         setSeries((prev) => {
@@ -1180,7 +1198,12 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         anomaly: incomingLog.anomaly,
         hash: incomingLog.hash,
       };
-      setLogs((prev) => [localLog, ...prev].slice(0, 200));
+      setLogs((prev) => {
+        if (prev.some((log) => log.id === localLog.id)) {
+          return prev;
+        }
+        return [localLog, ...prev].slice(0, 200);
+      });
 
       const localIncident: Incident = {
         id: incident.id,
