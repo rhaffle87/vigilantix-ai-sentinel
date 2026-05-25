@@ -156,7 +156,10 @@ export function NetworkTopology() {
   const attackerNode = nodes.find((n) => n.id === "attacker")!;
 
   return (
-    <div className="relative w-full h-[320px] bg-card border border-border/80 rounded-xl overflow-hidden shadow-2xl p-4 flex flex-col justify-between">
+    <div
+      onClick={() => setHoveredNode(null)}
+      className="relative w-full h-[320px] bg-card border border-border/80 rounded-xl overflow-hidden shadow-2xl p-4 flex flex-col justify-between"
+    >
       {/* Header bar */}
       <div className="flex items-center justify-between border-b border-border/40 pb-2">
         <div className="flex items-center gap-2">
@@ -351,6 +354,10 @@ export function NetworkTopology() {
                   key={n.id}
                   onMouseEnter={() => setHoveredNode(n.id)}
                   onMouseLeave={() => setHoveredNode(null)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setHoveredNode(hoveredNode === n.id ? null : n.id);
+                  }}
                   style={{ cursor: "pointer" }}
                 >
                   {/* Animated ping ring on attacked/critical nodes */}
@@ -405,7 +412,7 @@ export function NetworkTopology() {
 
       {/* Hover tooltip */}
       {hoveredNode && (
-        <div className="absolute bottom-10 left-4 right-4 bg-popover/95 border border-border/80 rounded-lg p-2.5 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 duration-200">
+        <div className="absolute bottom-4 left-4 right-4 bg-popover/95 border border-border/80 rounded-lg p-2.5 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 duration-200">
           {(() => {
             const node = nodes.find((n) => n.id === hoveredNode)!;
             const isAttacked = node.id === attackedNodeId;
@@ -451,7 +458,7 @@ export function NetworkTopology() {
       )}
 
       {/* Footer */}
-      <div className="flex items-center justify-between border-t border-border/40 pt-2 text-[10px] font-mono text-muted-foreground">
+      <div className={`flex items-center justify-between border-t border-border/40 pt-2 text-[10px] font-mono text-muted-foreground transition-all duration-200 ${hoveredNode ? "opacity-0 invisible pointer-events-none" : "opacity-100 visible"}`}>
         <span>Subnet Gateway: {CORPORATE_NET.apiGateway}</span>
         <span>•</span>
         <span>Status: Nominal sync channel established</span>

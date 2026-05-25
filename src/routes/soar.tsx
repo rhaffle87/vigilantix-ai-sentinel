@@ -375,82 +375,84 @@ function SoarPage() {
           <div className="border-b border-border px-4 py-3">
             <h3 className="text-sm font-semibold">Playbook Library</h3>
           </div>
-          <table className="w-full text-sm">
-            <thead className="text-[10px] uppercase tracking-widest text-muted-foreground">
-              <tr className="border-b border-border">
-                <th className="px-4 py-2 text-left">Playbook</th>
-                <th className="px-4 py-2 text-left">Trigger</th>
-                <th className="px-4 py-2 text-right">Steps</th>
-                <th className="px-4 py-2 text-right">Runs (30d)</th>
-                <th className="px-4 py-2 text-right">Status</th>
-                <th className="px-4 py-2 text-right"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPlaybooks.map((p) => (
-                <tr key={p.id} className="border-b border-border/40 hover:bg-muted/30">
-                  <td className="px-4 py-3">
-                    <div className="font-semibold text-foreground">{p.name}</div>
-                    <div className="font-mono text-[10px] text-muted-foreground">{p.id}</div>
-                  </td>
-                  <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
-                    {p.trigger}
-                  </td>
-                  <td className="px-4 py-3 text-right font-mono">{p.steps}</td>
-                  <td className="px-4 py-3 text-right font-mono text-accent">{p.runs}</td>
-                  <td className="px-4 py-3 text-right">
-                    <span
-                      className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] uppercase tracking-widest ${
-                        p.enabled
-                          ? "bg-success/15 text-success font-semibold"
-                          : "bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      {p.enabled ? (
-                        <PlayCircle className="h-3 w-3" aria-hidden="true" />
-                      ) : (
-                        <PauseCircle className="h-3 w-3" aria-hidden="true" />
-                      )}
-                      {p.enabled ? "enabled" : "paused"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      {p.enabled && (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[750px] text-sm">
+              <thead className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                <tr className="border-b border-border">
+                  <th className="px-4 py-2 text-left">Playbook</th>
+                  <th className="px-4 py-2 text-left">Trigger</th>
+                  <th className="px-4 py-2 text-right">Steps</th>
+                  <th className="px-4 py-2 text-right">Runs (30d)</th>
+                  <th className="px-4 py-2 text-right">Status</th>
+                  <th className="px-4 py-2 text-right"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPlaybooks.map((p) => (
+                  <tr key={p.id} className="border-b border-border/40 hover:bg-muted/30">
+                    <td className="px-4 py-3">
+                      <div className="font-semibold text-foreground">{p.name}</div>
+                      <div className="font-mono text-[10px] text-muted-foreground">{p.id}</div>
+                    </td>
+                    <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                      {p.trigger}
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono">{p.steps}</td>
+                    <td className="px-4 py-3 text-right font-mono text-accent">{p.runs}</td>
+                    <td className="px-4 py-3 text-right">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] uppercase tracking-widest ${
+                          p.enabled
+                            ? "bg-success/15 text-success font-semibold"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {p.enabled ? (
+                          <PlayCircle className="h-3 w-3" aria-hidden="true" />
+                        ) : (
+                          <PauseCircle className="h-3 w-3" aria-hidden="true" />
+                        )}
+                        {p.enabled ? "enabled" : "paused"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {p.enabled && (
+                          <button
+                            onClick={() => {
+                              let idx = 0;
+                              if (p.id === "PB-Critical-Containment") idx = 0;
+                              else if (p.id === "PB-Auth-Gate-Lockout") idx = 1;
+                              else if (p.id === "PB-Data-Exfil-Prevention") idx = 2;
+                              else if (p.id === "PB-Endpoint-Isolation") idx = 3;
+                              else if (p.id === "PB-APT-Containment") idx = 4;
+                              triggerAttack(idx);
+                            }}
+                            disabled={isAttacking}
+                            className="rounded bg-accent/15 hover:bg-accent/30 text-accent font-semibold px-2 py-1 text-xs transition disabled:opacity-50 active:scale-95"
+                            aria-label={`Dry-run playbook ${p.name}`}
+                          >
+                            Dry-run
+                          </button>
+                        )}
                         <button
                           onClick={() => {
-                            let idx = 0;
-                            if (p.id === "PB-Critical-Containment") idx = 0;
-                            else if (p.id === "PB-Auth-Gate-Lockout") idx = 1;
-                            else if (p.id === "PB-Data-Exfil-Prevention") idx = 2;
-                            else if (p.id === "PB-Endpoint-Isolation") idx = 3;
-                            else if (p.id === "PB-APT-Containment") idx = 4;
-                            triggerAttack(idx);
+                            setEditingPlaybook(p);
+                            setYamlContent(playbookRegistry[p.id] || PLAYBOOK_YAML_TEMPLATES[p.id] || "");
+                            setSaveSuccess(false);
                           }}
-                          disabled={isAttacking}
-                          className="rounded bg-accent/15 hover:bg-accent/30 text-accent font-semibold px-2 py-1 text-xs transition disabled:opacity-50 active:scale-95"
-                          aria-label={`Dry-run playbook ${p.name}`}
+                          className="rounded border border-border px-2 py-1 text-xs hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-95 transition"
+                          aria-label={`Edit YAML for playbook ${p.name}`}
                         >
-                          Dry-run
+                          Edit YAML
                         </button>
-                      )}
-                      <button
-                        onClick={() => {
-                          setEditingPlaybook(p);
-                          setYamlContent(playbookRegistry[p.id] || PLAYBOOK_YAML_TEMPLATES[p.id] || "");
-                          setSaveSuccess(false);
-                        }}
-                        className="rounded border border-border px-2 py-1 text-xs hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-95 transition"
-                        aria-label={`Edit YAML for playbook ${p.name}`}
-                      >
-                        Edit YAML
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 

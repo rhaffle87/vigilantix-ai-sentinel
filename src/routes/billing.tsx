@@ -259,54 +259,77 @@ function BillingPage() {
             </h3>
           </div>
           <div className="divide-y divide-border">
-            {clusters.map((c) => (
-              <div key={c.name} className="flex flex-wrap items-center gap-4 px-4 py-3">
-                <span
-                  className={`rounded px-2 py-0.5 text-[10px] uppercase tracking-widest ${c.type === "gateway"
-                      ? "bg-primary/15 text-primary font-semibold"
-                      : c.type === "sql"
-                        ? "bg-accent/15 text-accent font-semibold"
-                        : c.type === "ad"
-                          ? "bg-success/15 text-success font-semibold"
-                          : "bg-warning/15 text-warning font-semibold"
-                    }`}
-                >
-                  {c.type === "gateway"
-                    ? "Nginx"
-                    : c.type === "sql"
-                      ? "PostgreSQL"
-                      : c.type === "ad"
-                        ? "AD DS"
-                        : "CoreDNS"}
-                </span>
-                <span className="flex-1 font-mono text-xs text-foreground">{c.name}</span>
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="text-muted-foreground">load</span>
-                  <div className="h-1.5 w-32 overflow-hidden rounded-full bg-muted">
-                    <div
-                      className={`h-full ${c.load > 90
-                          ? "bg-destructive animate-flicker"
-                          : c.load > 70
-                            ? "bg-warning"
-                            : "bg-success"
+            {clusters.map((c) => {
+              const [titleAndIp, region] = c.name.split(" · ");
+              return (
+                <div key={c.name} className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                  {/* Title & Tag */}
+                  <div className="flex items-start gap-2.5 sm:items-center min-w-0 flex-1">
+                    <span
+                      className={`shrink-0 rounded px-2 py-0.5 text-[9px] uppercase tracking-widest font-semibold mt-0.5 sm:mt-0 ${c.type === "gateway"
+                          ? "bg-primary/15 text-primary"
+                          : c.type === "sql"
+                            ? "bg-accent/15 text-accent"
+                            : c.type === "ad"
+                              ? "bg-success/15 text-success"
+                              : "bg-warning/15 text-warning"
                         }`}
-                      style={{ width: `${c.load}%` }}
-                    />
+                    >
+                      {c.type === "gateway"
+                        ? "Nginx"
+                        : c.type === "sql"
+                          ? "PostgreSQL"
+                          : c.type === "ad"
+                            ? "AD DS"
+                            : "CoreDNS"}
+                    </span>
+                    <div className="flex flex-col gap-0.5 min-w-0">
+                      <span className="font-mono text-xs text-foreground leading-snug break-all sm:break-normal">
+                        {titleAndIp}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground font-mono">
+                        {region}
+                      </span>
+                    </div>
                   </div>
-                  <span className="font-mono">{c.load}%</span>
+
+                  {/* Metrics Container (Load & Health) */}
+                  <div className="flex items-center justify-between gap-4 sm:justify-end sm:gap-6 shrink-0 w-full sm:w-auto">
+                    {/* Load Indicator */}
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="text-muted-foreground text-[10px] uppercase tracking-wider select-none">load</span>
+                      <div className="h-1.5 w-24 xs:w-28 sm:w-32 overflow-hidden rounded-full bg-muted">
+                        <div
+                          className={`h-full ${c.load > 90
+                              ? "bg-destructive animate-flicker"
+                              : c.load > 70
+                                ? "bg-warning"
+                                : "bg-success"
+                            }`}
+                          style={{ width: `${c.load}%` }}
+                        />
+                      </div>
+                      <span className="font-mono w-8 text-right text-foreground font-medium">{c.load}%</span>
+                    </div>
+
+                    {/* Health / Uptime Indicator */}
+                    <div className="flex items-center gap-1.5 min-w-[75px] justify-end shrink-0">
+                      <span className="text-muted-foreground text-[10px] uppercase tracking-wider sm:hidden select-none">health</span>
+                      <span
+                        className={`font-mono text-xs font-semibold ${c.health < 90
+                            ? "text-destructive"
+                            : c.health < 95
+                              ? "text-warning"
+                              : "text-success"
+                          }`}
+                      >
+                        {c.health}%
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <span
-                  className={`font-mono text-xs ${c.health < 90
-                      ? "text-destructive font-semibold"
-                      : c.health < 95
-                        ? "text-warning font-semibold"
-                        : "text-success"
-                    }`}
-                >
-                  {c.health}%
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

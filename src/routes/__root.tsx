@@ -248,7 +248,7 @@ function TopBar() {
   useEffect(() => {
     const handler = setTimeout(() => {
       setSearchQuery(localSearch);
-    }, 200);
+    }, 100);
     return () => clearTimeout(handler);
   }, [localSearch, setSearchQuery]);
 
@@ -311,7 +311,7 @@ function TopBar() {
         </span>
       </div>
 
-      <div className="relative ml-auto hidden w-72 md:block">
+      <div className="relative hidden w-72 md:block">
         <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
         <input
           id="search-input"
@@ -402,119 +402,121 @@ function TopBar() {
         <span className="font-mono font-semibold text-warning">{metrics.alertsToday}</span>
       </div>
 
-      <div className="relative">
-        <button
-          id="bell-button"
-          onClick={() => setIsNotifOpen(!isNotifOpen)}
-          className={`relative flex h-8 w-8 items-center justify-center rounded-md border transition-all duration-200 hover-ring hover:scale-105 active:scale-95 ${
-            isNotifOpen
-              ? "border-accent bg-accent/15 scale-95"
-              : alerting
-                ? "border-destructive bg-destructive/15 animate-pulse-alert"
-                : "border-border bg-card/40 hover:bg-card/70 hover:border-accent/40"
-          } focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none`}
-          aria-label={alerting ? `${metrics.alertsToday} active alerts` : "No active alerts"}
-        >
-          {alerting ? (
-            <ShieldAlert className="h-4 w-4 text-destructive ring-bell-icon" aria-hidden="true" />
-          ) : (
-            <Bell className={`h-4 w-4 ring-bell-icon transition-colors ${isNotifOpen ? "text-accent" : "text-muted-foreground"}`} aria-hidden="true" />
-          )}
-          {notifications.some((n) => !n.read) && (
-            <span className="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-destructive text-[8px] font-bold text-destructive-foreground animate-pulse">
-              {notifications.filter((n) => !n.read).length}
-            </span>
-          )}
-        </button>
-
-        {isNotifOpen && (
-          <div id="notifications-dropdown" className="absolute right-0 top-full z-50 mt-2 w-[340px] rounded-md border border-border bg-card/95 backdrop-blur shadow-2xl glow-primary">
-            <div className="flex items-center justify-between border-b border-border/60 px-3 py-2">
-              <span id="notifications-title" className="text-[10px] font-semibold uppercase tracking-wider text-accent">
-                System Alerts & Logs ({notifications.filter((n) => !n.read).length} Unread)
+      <div className="ml-auto flex items-center gap-2 sm:gap-3">
+        <div className="relative">
+          <button
+            id="bell-button"
+            onClick={() => setIsNotifOpen(!isNotifOpen)}
+            className={`relative flex h-8 w-8 items-center justify-center rounded-md border transition-all duration-200 hover-ring hover:scale-105 active:scale-95 ${
+              isNotifOpen
+                ? "border-accent bg-accent/15 scale-95"
+                : alerting
+                  ? "border-destructive bg-destructive/15 animate-pulse-alert"
+                  : "border-border bg-card/40 hover:bg-card/70 hover:border-accent/40"
+            } focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none`}
+            aria-label={alerting ? `${metrics.alertsToday} active alerts` : "No active alerts"}
+          >
+            {alerting ? (
+              <ShieldAlert className="h-4 w-4 text-destructive ring-bell-icon" aria-hidden="true" />
+            ) : (
+              <Bell className={`h-4 w-4 ring-bell-icon transition-colors ${isNotifOpen ? "text-accent" : "text-muted-foreground"}`} aria-hidden="true" />
+            )}
+            {notifications.some((n) => !n.read) && (
+              <span className="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-destructive text-[8px] font-bold text-destructive-foreground animate-pulse">
+                {notifications.filter((n) => !n.read).length}
               </span>
-              {notifications.length > 0 && (
-                <button
-                  onClick={() => {
-                    clearNotifications();
-                  }}
-                  className="flex items-center gap-1 text-[9px] font-medium text-muted-foreground hover:text-destructive transition-colors"
-                >
-                  <Trash2 className="h-2.5 w-2.5" />
-                  Clear All
-                </button>
-              )}
-            </div>
+            )}
+          </button>
 
-            <div className="max-h-[300px] overflow-y-auto divide-y divide-border/40 scrollbar-thin">
-              {notifications.length === 0 ? (
-                <div className="py-8 text-center text-xs text-muted-foreground">
-                  No notifications recorded yet.
-                </div>
-              ) : (
-                notifications.map((n) => {
-                  let NotifIcon = Info;
-                  let iconColor = "text-info";
-                  if (n.type === "attack") {
-                    NotifIcon = ShieldAlert;
-                    iconColor = "text-destructive";
-                  } else if (n.type === "playbook") {
-                    NotifIcon = Cpu;
-                    iconColor = "text-accent";
-                  } else if (n.type === "remediation") {
-                    NotifIcon = CheckCircle;
-                    iconColor = "text-success";
-                  } else if (n.type === "variable") {
-                    NotifIcon = Activity;
-                    iconColor = "text-warning";
-                  }
+          {isNotifOpen && (
+            <div id="notifications-dropdown" className="absolute right-0 top-full z-50 mt-2 w-[340px] max-w-[calc(100vw-2rem)] rounded-md border border-border bg-card/95 backdrop-blur shadow-2xl glow-primary">
+              <div className="flex items-center justify-between border-b border-border/60 px-3 py-2">
+                <span id="notifications-title" className="text-[10px] font-semibold uppercase tracking-wider text-accent">
+                  System Alerts & Logs ({notifications.filter((n) => !n.read).length} Unread)
+                </span>
+                {notifications.length > 0 && (
+                  <button
+                    onClick={() => {
+                      clearNotifications();
+                    }}
+                    className="flex items-center gap-1 text-[9px] font-medium text-muted-foreground hover:text-destructive transition-colors"
+                  >
+                    <Trash2 className="h-2.5 w-2.5" />
+                    Clear All
+                  </button>
+                )}
+              </div>
 
-                  return (
-                    <div
-                      key={n.id}
-                      onClick={() => markNotificationRead(n.id)}
-                      className={`flex gap-3 p-3 hover:bg-muted/40 cursor-pointer transition-colors ${
-                        !n.read ? "bg-muted/10 font-semibold" : ""
-                      }`}
-                    >
-                      <div className={`mt-0.5 flex-shrink-0 ${iconColor}`}>
-                        <NotifIcon className="h-4 w-4" />
-                      </div>
-                      <div className="flex-1 space-y-1">
-                        <p className="text-xs text-foreground leading-snug">{n.message}</p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-[9px] text-muted-foreground">
-                            {formatRelativeTime(n.timestamp)}
-                          </span>
-                          {!n.read && (
-                            <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
-                          )}
+              <div className="max-h-[300px] overflow-y-auto divide-y divide-border/40 scrollbar-thin">
+                {notifications.length === 0 ? (
+                  <div className="py-8 text-center text-xs text-muted-foreground">
+                    No notifications recorded yet.
+                  </div>
+                ) : (
+                  notifications.map((n) => {
+                    let NotifIcon = Info;
+                    let iconColor = "text-info";
+                    if (n.type === "attack") {
+                      NotifIcon = ShieldAlert;
+                      iconColor = "text-destructive";
+                    } else if (n.type === "playbook") {
+                      NotifIcon = Cpu;
+                      iconColor = "text-accent";
+                    } else if (n.type === "remediation") {
+                      NotifIcon = CheckCircle;
+                      iconColor = "text-success";
+                    } else if (n.type === "variable") {
+                      NotifIcon = Activity;
+                      iconColor = "text-warning";
+                    }
+
+                    return (
+                      <div
+                        key={n.id}
+                        onClick={() => markNotificationRead(n.id)}
+                        className={`flex gap-3 p-3 hover:bg-muted/40 cursor-pointer transition-colors ${
+                          !n.read ? "bg-muted/10 font-semibold" : ""
+                        }`}
+                      >
+                        <div className={`mt-0.5 flex-shrink-0 ${iconColor}`}>
+                          <NotifIcon className="h-4 w-4" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <p className="text-xs text-foreground leading-snug">{n.message}</p>
+                          <div className="flex items-center justify-between">
+                            <span className="text-[9px] text-muted-foreground">
+                              {formatRelativeTime(n.timestamp)}
+                            </span>
+                            {!n.read && (
+                              <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })
-              )}
+                    );
+                  })
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
+
+        <button
+          onClick={handleSignOut}
+          className="flex h-8 w-8 items-center justify-center rounded-md border border-border bg-card/40 transition-colors hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2 focus-visible:outline-none"
+          aria-label="Sign out"
+        >
+          <LogOut className="h-4 w-4" aria-hidden="true" />
+        </button>
+
+        <Link
+          to="/account"
+          aria-label="Operator Profile & Preferences"
+          className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-primary text-xs font-bold text-primary-foreground select-none transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-md hover:shadow-primary/20 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none"
+        >
+          {userInitials}
+        </Link>
       </div>
-
-      <button
-        onClick={handleSignOut}
-        className="flex h-8 w-8 items-center justify-center rounded-md border border-border bg-card/40 transition-colors hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2 focus-visible:outline-none"
-        aria-label="Sign out"
-      >
-        <LogOut className="h-4 w-4" aria-hidden="true" />
-      </button>
-
-      <Link
-        to="/account"
-        aria-label="Operator Profile & Preferences"
-        className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-primary text-xs font-bold text-primary-foreground select-none transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-md hover:shadow-primary/20 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none"
-      >
-        {userInitials}
-      </Link>
     </header>
   );
 }

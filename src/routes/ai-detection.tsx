@@ -203,46 +203,51 @@ function AIDetectionPage() {
             {flagged.map((l) => (
               <div
                 key={l.id}
-                className="flex items-center gap-4 px-4 py-3 transition hover:bg-muted/30"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 transition hover:bg-muted/30"
               >
-                <div className="relative h-10 w-10 shrink-0">
-                  <svg viewBox="0 0 36 36" className="h-10 w-10 -rotate-90" aria-hidden="true">
-                    <circle cx="18" cy="18" r="14" fill="none" stroke="var(--muted)" strokeWidth="3" />
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="14"
-                      fill="none"
-                      stroke={l.anomaly > 80 ? "var(--destructive)" : "var(--warning)"}
-                      strokeWidth="3"
-                      strokeDasharray={`${(l.anomaly / 100) * 88} 88`}
-                    />
-                  </svg>
-                  <span className="absolute inset-0 flex items-center justify-center font-mono text-[10px] font-bold">
-                    {l.anomaly.toFixed(0)}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="rounded bg-muted px-1.5 py-0.5 uppercase text-accent font-semibold">
-                      {l.source}
+                <div className="flex items-start sm:items-center gap-3 flex-1 min-w-0">
+                  <div className="relative h-10 w-10 shrink-0 mt-0.5 sm:mt-0">
+                    <svg viewBox="0 0 36 36" className="h-10 w-10 -rotate-90" aria-hidden="true">
+                      <circle cx="18" cy="18" r="14" fill="none" stroke="var(--muted)" strokeWidth="3" />
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r="14"
+                        fill="none"
+                        stroke={l.anomaly > 80 ? "var(--destructive)" : "var(--warning)"}
+                        strokeWidth="3"
+                        strokeDasharray={`${(l.anomaly / 100) * 88} 88`}
+                      />
+                    </svg>
+                    <span className="absolute inset-0 flex items-center justify-center font-mono text-[10px] font-bold">
+                      {l.anomaly.toFixed(0)}
                     </span>
-                    <span className="font-mono text-foreground">{l.srcIp}</span>
-                    <span className="text-muted-foreground">→ {l.dstIp}</span>
                   </div>
-                  <p className="mt-0.5 truncate text-sm text-foreground">{l.message}</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                      <span className="rounded bg-muted px-1.5 py-0.5 uppercase text-accent font-semibold">
+                        {l.source}
+                      </span>
+                      <span className="font-mono text-foreground">{l.srcIp}</span>
+                      <span className="text-muted-foreground">→</span>
+                      <span className="font-mono text-muted-foreground">{l.dstIp}</span>
+                    </div>
+                    <p className="mt-0.5 truncate text-sm text-foreground">{l.message}</p>
+                  </div>
                 </div>
-                <button
-                  onClick={() => {
-                    setSelectedAnomaly(l);
-                    setContainmentApplied(false);
-                    setActiveTab("forensics");
-                  }}
-                  className="rounded border border-border px-3 py-1 text-xs hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                  aria-label={`Investigate anomaly from IP ${l.srcIp}`}
-                >
-                  Investigate
-                </button>
+                <div className="flex shrink-0 justify-end sm:justify-start pl-[52px] sm:pl-0 mt-1 sm:mt-0">
+                  <button
+                    onClick={() => {
+                      setSelectedAnomaly(l);
+                      setContainmentApplied(false);
+                      setActiveTab("forensics");
+                    }}
+                    className="rounded border border-border px-3 py-1 text-xs hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    aria-label={`Investigate anomaly from IP ${l.srcIp}`}
+                  >
+                    Investigate
+                  </button>
+                </div>
               </div>
             ))}
           </div>
