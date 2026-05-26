@@ -36,12 +36,12 @@ function LogsPage() {
   const q = searchQuery.toLowerCase().trim();
   const searched = q
     ? filtered.filter(
-        (l) =>
-          l.message.toLowerCase().includes(q) ||
-          l.srcIp.toLowerCase().includes(q) ||
-          l.dstIp.toLowerCase().includes(q) ||
-          (l.hash && l.hash.toLowerCase().includes(q))
-      )
+      (l) =>
+        l.message.toLowerCase().includes(q) ||
+        l.srcIp.toLowerCase().includes(q) ||
+        l.dstIp.toLowerCase().includes(q) ||
+        (l.hash && l.hash.toLowerCase().includes(q))
+    )
     : filtered;
 
   const totalEps = metrics.eventsPerSec;
@@ -125,11 +125,10 @@ function LogsPage() {
                 <button
                   key={s}
                   onClick={() => setFilter(s)}
-                  className={`rounded px-2 py-1 text-xs uppercase tracking-wider transition ${
-                    filter === s
+                  className={`rounded px-2 py-1 text-xs uppercase tracking-wider transition ${filter === s
                       ? "bg-primary text-primary-foreground font-semibold"
                       : "bg-muted text-muted-foreground hover:bg-muted/70"
-                  } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
+                    } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
                 >
                   {s}
                 </button>
@@ -157,16 +156,15 @@ function LogsPage() {
                   <th className="px-3 py-2 text-left">Src IP</th>
                   <th className="px-3 py-2 text-left">Dst IP</th>
                   <th className="px-3 py-2 text-left">Message</th>
-                  <th className="px-3 py-2 text-right">Anomaly (%)</th>
+                  <th className="px-3 py-2 text-right">Anomaly</th>
                 </tr>
               </thead>
               <tbody>
                 {searched.slice(0, 80).map((l) => (
                   <tr
                     key={l.id}
-                    className={`border-b border-border/40 hover:bg-muted/30 ${
-                      l.anomaly > 80 ? "bg-destructive/5" : ""
-                    }`}
+                    className={`border-b border-border/40 hover:bg-muted/30 ${l.anomaly > 80 ? "bg-destructive/5" : ""
+                      }`}
                   >
                     <td className="px-3 py-1.5 text-muted-foreground">
                       {mounted ? formatTime(l.ts) : "--:--:--"}
@@ -176,13 +174,12 @@ function LogsPage() {
                     <td className="px-3 py-1.5">{l.dstIp}</td>
                     <td className="px-3 py-1.5 text-muted-foreground">{l.message}</td>
                     <td
-                      className={`px-3 py-1.5 text-right ${
-                        l.anomaly > 80
+                      className={`px-3 py-1.5 text-right ${l.anomaly > 80
                           ? "text-destructive font-semibold"
                           : l.anomaly > 50
                             ? "text-warning"
                             : "text-success"
-                      }`}
+                        }`}
                     >
                       {l.anomaly.toFixed(1)}%
                     </td>
